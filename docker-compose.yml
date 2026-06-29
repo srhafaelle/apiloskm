@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: cvm_database
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - cvm_network
+
+  api-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cvm_api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Conexión interna hacia el contenedor de Mongo
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/cvm_db
+    depends_on:
+      - mongodb
+    networks:
+      - cvm_network
+
+networks:
+  cvm_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
