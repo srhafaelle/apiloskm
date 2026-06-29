@@ -6,7 +6,13 @@ services:
     container_name: cvm_database
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      # Cambiamos a 127.0.0.1:27017 para que el puerto no quede abierto al internet público,
+      # solo accesible desde dentro del propio servidor.
+      - "127.0.0.1:27017:27017"
+    environment:
+      # Credenciales iniciales (cámbialas por claves más fuertes)
+      - MONGO_INITDB_ROOT_USERNAME=admincvm
+      - MONGO_INITDB_ROOT_PASSWORD=hgYuvBBu76GfePlsjfecnb45uyg86hjghck
     volumes:
       - mongo_data:/data/db
     networks:
@@ -21,8 +27,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # Conexión interna hacia el contenedor de Mongo
-      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/cvm_db
+      # Inyectamos la URL segura. Estructura: mongodb://usuario:clave@host:puerto/bd?authSource=admin
+      - MONGO_URI=mongodb://admincvm:hgYuvBBu76GfePlsjfecnb45uyg86hjghck@mongodb:27017/cvm_db?authSource=admin
     depends_on:
       - mongodb
     networks:
