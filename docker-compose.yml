@@ -1,42 +1,44 @@
-version: '3.8'
-
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: cvm_database
-    restart: unless-stopped
+  backend:
+    build: .
     ports:
-      # Cambiamos a 127.0.0.1:27017 para que el puerto no quede abierto al internet público,
-      # solo accesible desde dentro del propio servidor.
-      - "127.0.0.1:27017:27017"
+      - "8036:8036"
     environment:
-      # Credenciales iniciales (cámbialas por claves más fuertes)
-      - MONGO_INITDB_ROOT_USERNAME=admincvm
-      - MONGO_INITDB_ROOT_PASSWORD=hgYuvBBu76GfePlsjfecnb45uyg86hjghck
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - cvm_network
-
-  api-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: cvm_api
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      # Inyectamos la URL segura. Estructura: mongodb://usuario:clave@host:puerto/bd?authSource=admin
-      - MONGO_URI=mongodb://admincvm:hgYuvBBu76GfePlsjfecnb45uyg86hjghck@mongodb:27017/cvm_db?authSource=admin
+      # Unificado el nombre a cvmdbs en ambas cadenas de conexión
+      - CONNECTION_DB=mongodb://admincvm:JDDok45h674830hfusORtwWW4fdf65B@mongo:27017/cvmdbs?authSource=admin
+      - SPRING_DATA_MONGODB_URI=mongodb://admincvm:JDDok45h674830hfusORtwWW4fdf65B@mongo:27017/cvmdbs?authSource=admin
     depends_on:
-      - mongodb
+      mongo:
+        condition: service_healthy # Obliga a la API a esperar que Mongo esté listo con sus credenciales
     networks:
-      - cvm_network
+      - cvm-network
 
-networks:
-  cvm_network:
-    driver: bridge
+  mongo:
+    image: mongo:latest
+    container_name: mongopos
+    ports:
+      # Puerto abierto al público para que te conectes desde MongoDB Compass externa
+      - "12876:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admincvm
+      - MONGO_INITDB_ROOT_PASSWORD=JDDok45h674830hfusORtwWW4fdf65B
+      - TZ=America/Caracas
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    networks:
+      - cvm-network
+    # El healthcheck corregido con los parámetros oficiales de autenticación de mongosh
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "admincvm", "-p", "JDDok45h674830hfusORtwWW4fdf65B", "--authenticationDatabase", "admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  mongo_data:
+  mongo-data:
+  mongo-config:
+
+networks:
+  cvm-network:
+    driver: bridge
