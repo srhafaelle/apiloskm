@@ -13,7 +13,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://tu-dominio-frontend.com", "https://tu-dominio-frontend.com") // Cambia esto por tu dominio real
+                        .allowedOrigins("http://apicvm2026.duckdns.org", "https://apicvm2026.duckdns.org")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

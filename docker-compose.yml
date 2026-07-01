@@ -4,12 +4,11 @@ services:
     ports:
       - "8036:8036"
     environment:
-      # Unificado el nombre a cvmdbs en ambas cadenas de conexión
       - CONNECTION_DB=mongodb://admincvm:JDDok45h674830hfusORtwWW4fdf65B@mongo:27017/cvmdbs?authSource=admin
       - SPRING_DATA_MONGODB_URI=mongodb://admincvm:JDDok45h674830hfusORtwWW4fdf65B@mongo:27017/cvmdbs?authSource=admin
     depends_on:
       mongo:
-        condition: service_healthy # Obliga a la API a esperar que Mongo esté listo con sus credenciales
+        condition: service_healthy
     networks:
       - cvm-network
 
@@ -28,7 +27,7 @@ services:
       - mongo-config:/data/configdb
     networks:
       - cvm-network
-    # El healthcheck corregido con los parámetros oficiales de autenticación de mongosh
+    # El healthcheck corregido con los parámetros oficiales de autenticacion de mongosh
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "admincvm", "-p", "JDDok45h674830hfusORtwWW4fdf65B", "--authenticationDatabase", "admin"]
       interval: 10s
