@@ -16,4 +16,6 @@ public class MineroRequest {
 
     @NotBlank(message = "El cargo es obligatorio")
     private String cargo;
+
+    private boolean esFundador = false;
 }

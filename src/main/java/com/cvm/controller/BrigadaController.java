@@ -2,6 +2,7 @@ package com.cvm.controller;
 
 import com.cvm.dto.BrigadaRequest;
 import com.cvm.model.BrigadaMinera;
+import com.cvm.repository.BrigadaMineraRepository;
 import com.cvm.service.BrigadaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.List;
 public class BrigadaController {
 
     private final BrigadaService brigadaService;
+    private final BrigadaMineraRepository brigadaMineraRepository;
 
     @PostMapping
     public ResponseEntity<BrigadaMinera> createBrigada(@Valid @RequestBody BrigadaRequest request) {
@@ -77,4 +79,18 @@ public class BrigadaController {
             @Valid @RequestBody PagoRequest request) { // Usamos PagoRequest (el de montoOro)
         return ResponseEntity.ok(brigadaService.registrarPagoArrime(id, request.getMontoOro()));
     }
+
+    @DeleteMapping("/{brigadaId}/mineros/{mineroId}")
+    public ResponseEntity<Void> removeMinero(@PathVariable String brigadaId,
+                                             @PathVariable String mineroId) {
+        brigadaService.removerDeBrigadaAnterior(brigadaId, mineroId);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<BrigadaMinera> getBrigadaById(@PathVariable String id) {
+        return brigadaMineraRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }

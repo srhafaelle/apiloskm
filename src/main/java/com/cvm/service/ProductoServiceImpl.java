@@ -1,11 +1,15 @@
 package com.cvm.service;
 
 import com.cvm.dto.ProductoRequest;
+import com.cvm.model.CargaInsumo;
 import com.cvm.model.Producto;
+import com.cvm.repository.CargaInsumoRepository;
 import com.cvm.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -13,6 +17,7 @@ import java.util.List;
 public class ProductoServiceImpl implements ProductoService {
 
     private final ProductoRepository productoRepository;
+    private final CargaInsumoRepository cargaInsumoRepository;
 
     @Override
     public Producto createProducto(ProductoRequest request) {
@@ -45,6 +50,74 @@ public class ProductoServiceImpl implements ProductoService {
         producto.setUnidad(request.getUnidad());
         producto.setStockDisponible(request.getStockDisponible());
 
+        return productoRepository.save(producto);
+    }
+    @Override
+    @Transactional
+    public Producto agregarStock(String productoId, String centroId, String nombreCentro, Double cantidad,
+                                 String numeroFactura, String usuarioReceptor) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        Producto.StockCentro stockCentro = producto.getInventarioPorCentro().stream()
+                .filter(c -> c.getPuntoDistribucionId().equals(centroId))
+                .findFirst()
+                .orElse(null);
+
+        if (stockCentro != null) {
+            stockCentro.setCantidad(stockCentro.getCantidad() + cantidad);
+        } else {
+            producto.getInventarioPorCentro().add(new Producto.StockCentro(centroId, nombreCentro, cantidad));
+        }
+        producto.recalcularStockGlobal();
+        Producto productoGuardado = productoRepository.save(producto);
+
+        // Registrar CargaInsumo
+        CargaInsumo carga = CargaInsumo.builder()
+                .numeroFactura(numeroFactura)
+                .productoId(productoId)
+                .nombreProducto(productoGuardado.getNombre())
+                .puntoDistribucionId(centroId)
+                .nombreCentro(nombreCentro)
+                .cantidadLitros(cantidad)
+                .usuarioReceptor(usuarioReceptor)
+                .fechaRecepcion(LocalDateTime.now())
+                .build();
+        cargaInsumoRepository.save(carga);
+
+        return productoGuardado;
+    }
+
+    @Override
+    public Producto transferirStock(String productoId, String origenId, String destinoId, String nombreDestino, Double cantidad) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        Producto.StockCentro origen = producto.getInventarioPorCentro().stream()
+                .filter(c -> c.getPuntoDistribucionId().equals(origenId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("El centro de origen no tiene este producto."));
+
+        if (origen.getCantidad() < cantidad) {
+            throw new RuntimeException("Stock insuficiente en el centro de origen.");
+        }
+
+        Producto.StockCentro destino = producto.getInventarioPorCentro().stream()
+                .filter(c -> c.getPuntoDistribucionId().equals(destinoId))
+                .findFirst()
+                .orElse(null);
+
+        // Restamos del origen
+        origen.setCantidad(origen.getCantidad() - cantidad);
+
+        // Sumamos al destino
+        if (destino != null) {
+            destino.setCantidad(destino.getCantidad() + cantidad);
+        } else {
+            producto.getInventarioPorCentro().add(new Producto.StockCentro(destinoId, nombreDestino, cantidad));
+        }
+
+        producto.recalcularStockGlobal();
         return productoRepository.save(producto);
     }
 }

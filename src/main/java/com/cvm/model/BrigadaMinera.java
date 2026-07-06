@@ -1,5 +1,6 @@
 package com.cvm.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,11 +33,12 @@ public class BrigadaMinera {
 
     @Builder.Default
     private LocalDateTime fechaRegistro = LocalDateTime.now();
-
-    // Almacenamos los IDs de los mineros. Como rotan, es más fácil actualizar un Set de Strings.
+    // ===== NUEVA ESTRUCTURA DE MIEMBROS =====
     @Builder.Default
-    private Set<String> minerosIds = new HashSet<>();
+    private Set<String> fundadoresIds = new HashSet<>();  // máximo 12, inamovibles
 
+    @Builder.Default
+    private Set<String> empleadosIds = new HashSet<>();
     // ==========================================
     // CONTROL DE INSCRIPCIÓN Y PAGOS EN ORO
     // ==========================================
@@ -96,5 +98,12 @@ public class BrigadaMinera {
         return historialCuotas.stream()
                 .filter(c -> c.getEstado() != EstadoCuota.PAGADA)
                 .collect(Collectors.toList());
+    }
+
+    @JsonIgnore
+    public Set<String> getTodosLosMinerosIds() {
+        Set<String> todos = new HashSet<>(fundadoresIds);
+        todos.addAll(empleadosIds);
+        return todos;
     }
 }

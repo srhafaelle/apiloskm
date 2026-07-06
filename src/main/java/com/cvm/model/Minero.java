@@ -28,4 +28,7 @@ public class Minero {
 
     // Si un minero puede estar sin brigada temporalmente, este campo puede ser null
     private String brigadaActualId;
+
+    @Builder.Default
+    private boolean esFundador = false;
 }

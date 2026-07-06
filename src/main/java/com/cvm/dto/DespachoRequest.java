@@ -13,4 +13,8 @@ public class DespachoRequest {
     @NotNull(message = "La cantidad es obligatoria")
     @Min(value = 0, message = "La cantidad debe ser mayor a 0")
     private Double cantidad;
+
+    // --- NUEVO CAMPO OBLIGATORIO ---
+    @NotBlank(message = "Debe especificar desde qué centro de distribución se hace el despacho")
+    private String puntoDistribucionId;
 }

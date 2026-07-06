@@ -8,4 +8,6 @@ public interface ProductoService {
     Producto createProducto(ProductoRequest request);
     List<Producto> getAllProductos();
     Producto updateProducto(String id, ProductoRequest request);
+    Producto agregarStock(String productoId, String centroId, String nombreCentro, Double cantidad, String numeroFactura, String usuarioReceptor);
+    Producto transferirStock(String productoId, String origenId, String destinoId, String nombreDestino, Double cantidad);
 }

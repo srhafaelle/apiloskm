@@ -5,36 +5,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Despacho {
+@Document(collection = "cargas_insumos")
+public class CargaInsumo {
     @Id
     private String id;
-    private TipoDespacho tipoDespacho;
-
+    private String numeroFactura; // El número de guía del camión
     private String productoId;
     private String nombreProducto;
-    private Double cantidadEntregada;
-    private Double costoEnOro;
-
     private String puntoDistribucionId;
-    private String nombrePuntoDistribucion;
-
-    private String beneficiarioId;
-    private String beneficiarioNombre;
-
-
-    private String observaciones;
-    private String despachadoPorUsuarioId;
-    private LocalDateTime fechaDespacho;
-
-
-
-
-
+    private String nombreCentro;
+    private Double cantidadLitros;
+    private String usuarioReceptor; // Quien recibió el camión
+    private LocalDateTime fechaRecepcion;
 }

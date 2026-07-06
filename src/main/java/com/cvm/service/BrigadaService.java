@@ -20,4 +20,6 @@ public interface BrigadaService {
     void generarCuotasMensuales(); // El proceso automático
     DashboardResponse obtenerMetricasDashboard();
     TesoreriaResponse obtenerTesoreriaPorFechas(LocalDate inicio, LocalDate fin);
+    void removerDeBrigadaAnterior(String brigadaAnteriorId, String mineroId);
+    BrigadaMinera getBrigadaById(String id);
 }

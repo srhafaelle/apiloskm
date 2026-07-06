@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 @Data
 public class ProductoRequest {
     @NotBlank(message = "El nombre del producto es obligatorio")
@@ -26,4 +29,6 @@ public class ProductoRequest {
     // Métricas Estadísticas (Se actualizan solas con cada despacho)
     private Double cantidadTotalDespachada = 0.0;
     private Double oroRecaudadoHistorico = 0.0;
+    private Integer numeroFactura;
+    private LocalDate fechaFactura = LocalDate.now(ZoneId.of("America/Caracas"));
 }

@@ -8,4 +8,5 @@ public interface MineroService {
     Minero createMinero(MineroRequest request);
     List<Minero> getAllMineros();
     Minero getMineroById(String id);
+    Minero updateMinero(String id, MineroRequest request);
 }

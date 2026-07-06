@@ -40,7 +40,8 @@ public class DashboardController {
     }
     // NUEVO ENDPOINT PARA LA TESORERÍA
     @GetMapping("/tesoreria")
-   // @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+   //
+    // @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<TesoreriaResponse> getTesoreriaPorFechas(
             @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam("fin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {

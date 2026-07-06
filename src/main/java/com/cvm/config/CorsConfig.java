@@ -13,7 +13,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://apicvm2026.duckdns.org", "https://apicvm2026.duckdns.org")
+                        .allowedOrigins("http://apicvm2026.duckdns.org", "https://apicvm2026.duckdns.org", "http://localhost:8080")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
