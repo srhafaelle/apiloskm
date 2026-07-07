@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/ventas")
@@ -17,6 +18,7 @@ import java.security.Principal;
 public class VentaController {
 
     private final VentaService ventaService;
+
 
     @PostMapping("/procesar")
     public ResponseEntity<Venta> procesarVenta(
@@ -44,6 +46,18 @@ public class VentaController {
         // Por ahora lo dejo como idea; implementa similar.
 
         return ventaService.findById(id);
+    }
+
+    @GetMapping("/all")
+    public List<Venta> obtenerVentas(){
+
+          return ventaService.findAll();
+    }
+
+
+    @GetMapping("/minero/{beneficiarioId}")
+    public ResponseEntity<List<Venta>> obtenerVentasPorMinero(@PathVariable String beneficiarioId) {
+        return ResponseEntity.ok(ventaService.findByBeneficiarioId(beneficiarioId));
     }
 
 

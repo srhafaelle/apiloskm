@@ -40,6 +40,7 @@ public class Turno {
     @Builder.Default
     private List<ResumenInsumo> resumenInsumos = new ArrayList<>();
 
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -48,4 +49,6 @@ public class Turno {
         private String nombreProducto;
         private Double totalLitrosEntregados;
     }
+
+
 }

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cvm.repository.TurnoRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import com.cvm.model.*;
@@ -22,7 +23,7 @@ public class VentaServiceImpl implements VentaService {
     private final VentaRepository ventaRepository;
     private final ProductoRepository productoRepository;
     private final PuntoDistribucionRepository puntoDistribucionRepository;
-    private final TurnoRepository turnoRepository;
+   private final TurnoRepository turnoRepository;
 
     @Override
     @Transactional
@@ -105,8 +106,19 @@ public class VentaServiceImpl implements VentaService {
 
         return ventaRepository.save(nuevaVenta);
     }
+
     @Override
     public Venta findById(String id) {
        return ventaRepository.findById(id).orElseThrow(()->new RuntimeException("venta no encontrada"));
+    }
+
+    @Override
+    public List<Venta>findAll(){
+        return   ventaRepository.findAll();
+    }
+
+    @Override
+    public List<Venta> findByBeneficiarioId(String beneficiarioId) {
+        return ventaRepository.findByBeneficiarioIdOrderByFechaVentaDesc(beneficiarioId);
     }
 }

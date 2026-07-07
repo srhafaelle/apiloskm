@@ -1,6 +1,7 @@
 package com.cvm.dto;
 import com.cvm.model.EstadoTurno;
 import com.cvm.model.Turno;
+import com.cvm.model.Venta;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,4 +19,5 @@ public class TurnoResponse {
     private Integer cantidadOperaciones;
     private String puntoDistribucionId;
     private List<Turno.ResumenInsumo> resumenInsumos;
+    private List<Venta> ventas;
 }

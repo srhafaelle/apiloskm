@@ -2,6 +2,7 @@ package com.cvm.controller;
 
 import com.cvm.dto.AuthRequest;
 import com.cvm.dto.AuthResponse;
+import com.cvm.model.Role;
 import com.cvm.security.CustomUserDetailsService;
 import com.cvm.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         final String jwtToken = jwtService.generateToken(userDetails);
 
+        System.out.println(userDetails);
         return ResponseEntity.ok(new AuthResponse(jwtToken));
     }
 }
