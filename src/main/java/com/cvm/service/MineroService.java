@@ -9,4 +9,12 @@ public interface MineroService {
     List<Minero> getAllMineros();
     Minero getMineroById(String id);
     Minero updateMinero(String id, MineroRequest request);
+
+
+    // NUEVOS MÉTODOS FINANCIEROS Y OPERATIVOS
+    Minero registrarPagoInscripcion(String mineroId, Double montoOro);
+    Minero asignarPlanArrime(String mineroId, Double cuotaMensual);
+    Minero registrarPagoArrime(String mineroId, Double montoOro);
+    Minero togglePausaOperaciones(String mineroId);
+    void generarCuotasMensualesMineros();
 }

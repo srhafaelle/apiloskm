@@ -9,9 +9,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.method.P;
-import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.bind.annotation.*;
+import com.cvm.dto.PagoRequest;
+import com.cvm.dto.PlanArrimeRequest;
 import java.util.List;
 
 @RestController
@@ -42,5 +43,23 @@ public class MineroController {
         return ResponseEntity.ok(mineroService.getMineroById(id));
     }
 
+    @PostMapping("/{id}/pagos")
+    public ResponseEntity<Minero> registrarPagoInscripcion(@PathVariable String id, @Valid @RequestBody PagoRequest request) {
+        return ResponseEntity.ok(mineroService.registrarPagoInscripcion(id, request.getMontoOro()));
+    }
 
+    @PostMapping("/{id}/plan-arrime")
+    public ResponseEntity<Minero> asignarPlan(@PathVariable String id, @Valid @RequestBody PlanArrimeRequest request) {
+        return ResponseEntity.ok(mineroService.asignarPlanArrime(id, request.getCuotaMensualAsignada()));
+    }
+
+    @PostMapping("/{id}/arrime/pagos")
+    public ResponseEntity<Minero> registrarPagoArrime(@PathVariable String id, @Valid @RequestBody PagoRequest request) {
+        return ResponseEntity.ok(mineroService.registrarPagoArrime(id, request.getMontoOro()));
+    }
+
+    @PutMapping("/{id}/paralizar")
+    public ResponseEntity<Minero> togglePausaOperaciones(@PathVariable String id) {
+        return ResponseEntity.ok(mineroService.togglePausaOperaciones(id));
+    }
 }

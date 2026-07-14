@@ -1,6 +1,7 @@
 package com.cvm.controller;
 import com.cvm.dto.TurnoAperturaRequest;
 import com.cvm.dto.TurnoResponse;
+import com.cvm.model.Turno;
 import com.cvm.service.TurnoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/turnos")
@@ -35,5 +37,10 @@ public class TurnoController {
     public ResponseEntity<TurnoResponse> cerrarTurno(Principal principal) {
         String emailCajero = (principal != null) ? principal.getName() : "CAJERO_SISTEMA";
         return ResponseEntity.ok(turnoService.cerrarTurno(emailCajero));
+    }
+    @GetMapping
+    public ResponseEntity<List<TurnoResponse>> getAllTurnos() {
+        List<TurnoResponse> lista = turnoService.obtenerTodosLosTurnos();
+        return ResponseEntity.ok(lista);
     }
 }

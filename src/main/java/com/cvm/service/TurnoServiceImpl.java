@@ -11,7 +11,7 @@ import com.cvm.repository.VentaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
 
 
 @Service
@@ -78,5 +78,12 @@ public class TurnoServiceImpl implements TurnoService {
         response.setResumenInsumos(turno.getResumenInsumos());
         response.setVentas(ventas);
         return response;
+    }
+    @Override
+    public List<TurnoResponse> obtenerTodosLosTurnos() {
+        List<Turno> turnos = turnoRepository.findAll();
+        return turnos.stream()
+                .map(turno -> mapToResponse(turno, null))   // no se cargan ventas en el listado
+                .collect(Collectors.toList());
     }
 }
