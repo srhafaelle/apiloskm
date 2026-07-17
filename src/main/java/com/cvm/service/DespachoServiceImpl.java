@@ -67,6 +67,8 @@ public class DespachoServiceImpl implements DespachoService {
             producto.setOroRecaudadoHistorico(producto.getOroRecaudadoHistorico() + costoTotal);
         }
 
+
+
         producto.setCantidadTotalDespachada(producto.getCantidadTotalDespachada() + request.getCantidad());
         productoRepository.save(producto);
 
@@ -87,6 +89,18 @@ public class DespachoServiceImpl implements DespachoService {
                 .build();
 
         // 4. ================= GUARDAR HISTORIALES (EMBEBIDOS) =================
+
+        if (request.getTipoDespacho() == TipoDespacho.MINERO_APOYO && mineroComprador != null) {
+            mineroComprador.getHistorialDespachos().add(despachoGlobal);
+
+            // NUEVO: Acumular combustible (Solo si la unidad del producto es LITROS)
+            if ("LITROS".equalsIgnoreCase(producto.getUnidad())) {
+                Double cicloActual = mineroComprador.getLitrosCompradosCicloActual() == null ? 0.0 : mineroComprador.getLitrosCompradosCicloActual();
+                mineroComprador.setLitrosCompradosCicloActual(cicloActual + request.getCantidad());
+            }
+
+            mineroRepository.save(mineroComprador);
+        }
         if (request.getTipoDespacho() == TipoDespacho.MINERO_APOYO && mineroComprador != null) {
             mineroComprador.getHistorialDespachos().add(despachoGlobal);
             mineroRepository.save(mineroComprador);

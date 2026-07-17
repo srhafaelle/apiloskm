@@ -18,4 +18,6 @@ public class MineroRequest {
     private String cargo;
 
     private boolean esFundador = false;
+    private String ubicacionTrabajo;
+    private String equipos;
 }

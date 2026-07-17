@@ -39,6 +39,8 @@ public class MineroServiceImpl implements MineroService {
                 .cedula(request.getCedula())
                 .cargo(request.getCargo())
                 .esFundador(request.isEsFundador())
+                .ubicacionTrabajo(request.getUbicacionTrabajo())
+                .equipos(request.getEquipos())
                 .build();
 
         return mineroRepository.save(minero);
@@ -62,6 +64,8 @@ public class MineroServiceImpl implements MineroService {
 
         minero.setNombres(request.getNombres());
         minero.setApellidos(request.getApellidos());
+        minero.setUbicacionTrabajo(request.getUbicacionTrabajo());
+        minero.setEquipos(request.getEquipos());
         minero.setCargo(request.getCargo());
 
         // Solo permitimos cambiar esFundador si no está actualmente en una brigada como fundador
