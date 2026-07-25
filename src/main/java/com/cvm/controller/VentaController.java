@@ -1,4 +1,5 @@
 package com.cvm.controller;
+import com.cvm.dto.DespachoFisicoRequest;
 import com.cvm.dto.VentaRequest;
 import com.cvm.model.Venta;
 import com.cvm.service.VentaService;
@@ -60,5 +61,33 @@ public class VentaController {
         return ResponseEntity.ok(ventaService.findByBeneficiarioId(beneficiarioId));
     }
 
+    // GET: /api/ventas/creditos-pendientes
+    @GetMapping("/creditos-pendientes")
+    public ResponseEntity<List<Venta>> obtenerCreditosPendientes() {
+        return ResponseEntity.ok(ventaService.obtenerCreditosPendientes());
+    }
 
+    // POST: /api/ventas/creditos/{id}/pagar
+    @PostMapping("/creditos/{id}/pagar")
+    public ResponseEntity<Venta> pagarCredito(@PathVariable String id, java.security.Principal principal) {
+        // principal.getName() obtiene el email del cajero logueado mediante Spring Security
+        Venta ventaPagada = ventaService.pagarCredito(id, principal.getName());
+        return ResponseEntity.ok(ventaPagada);
+    }
+
+    @GetMapping("/pendientes-despacho")
+    public ResponseEntity<List<Venta>> obtenerPendientesDespacho() {
+        return ResponseEntity.ok(ventaService.obtenerVentasPendientesDeDespacho());
+    }
+
+    // POST: /api/ventas/{id}/despacho-fisico
+    // La tablet usa esto al confirmar que llenó el tambor
+    @PostMapping("/{id}/despacho-fisico")
+    public ResponseEntity<Venta> procesarDespachoFisico(
+            @PathVariable String id,
+            @Valid @RequestBody DespachoFisicoRequest request) {
+
+        Venta ventaActualizada = ventaService.procesarDespachoFisico(id, request.getCantidadDespachada());
+        return ResponseEntity.ok(ventaActualizada);
+    }
 }

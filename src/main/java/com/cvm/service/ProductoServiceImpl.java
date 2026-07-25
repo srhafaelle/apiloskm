@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,9 +28,12 @@ public class ProductoServiceImpl implements ProductoService {
                 .unidad(request.getUnidad().toUpperCase())
                 .precioOro(request.getPrecioOro())
                 .activo(true)
-                .stockDisponible(request.getStockDisponible())
-                .cantidadTotalDespachada(request.getCantidadTotalDespachada())
-                .oroRecaudadoHistorico(request.getOroRecaudadoHistorico())
+                // Inicializamos todo en cero
+                .stockFisico(0.0)
+                .stockComprometido(0.0)
+                .inventarioPorCentro(new ArrayList<>())
+                .cantidadTotalDespachada(0.0)
+                .oroRecaudadoHistorico(0.0)
                 .build();
 
         return productoRepository.save(producto);
@@ -39,6 +43,7 @@ public class ProductoServiceImpl implements ProductoService {
     public List<Producto> getAllProductos() {
         return productoRepository.findAll();
     }
+
     @Override
     public Producto updateProducto(String id, ProductoRequest request) {
         Producto producto = productoRepository.findById(id)
@@ -48,10 +53,10 @@ public class ProductoServiceImpl implements ProductoService {
         producto.setDescripcion(request.getDescripcion());
         producto.setPrecioOro(request.getPrecioOro());
         producto.setUnidad(request.getUnidad());
-        producto.setStockDisponible(request.getStockDisponible());
 
         return productoRepository.save(producto);
     }
+
     @Override
     @Transactional
     public Producto agregarStock(String productoId, String centroId, String nombreCentro, Double cantidad,
@@ -64,11 +69,14 @@ public class ProductoServiceImpl implements ProductoService {
                 .findFirst()
                 .orElse(null);
 
+        // Agregamos al tanque físico del centro
         if (stockCentro != null) {
             stockCentro.setCantidad(stockCentro.getCantidad() + cantidad);
         } else {
             producto.getInventarioPorCentro().add(new Producto.StockCentro(centroId, nombreCentro, cantidad));
         }
+
+        // Magia: Esto recalculará automáticamente el stockFisico global
         producto.recalcularStockGlobal();
         Producto productoGuardado = productoRepository.save(producto);
 
@@ -89,6 +97,7 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    @Transactional
     public Producto transferirStock(String productoId, String origenId, String destinoId, String nombreDestino, Double cantidad) {
         Producto producto = productoRepository.findById(productoId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
@@ -99,7 +108,7 @@ public class ProductoServiceImpl implements ProductoService {
                 .orElseThrow(() -> new RuntimeException("El centro de origen no tiene este producto."));
 
         if (origen.getCantidad() < cantidad) {
-            throw new RuntimeException("Stock insuficiente en el centro de origen.");
+            throw new RuntimeException("Stock físico insuficiente en el centro de origen para transferir.");
         }
 
         Producto.StockCentro destino = producto.getInventarioPorCentro().stream()
@@ -117,6 +126,7 @@ public class ProductoServiceImpl implements ProductoService {
             producto.getInventarioPorCentro().add(new Producto.StockCentro(destinoId, nombreDestino, cantidad));
         }
 
+        // Recalculamos global
         producto.recalcularStockGlobal();
         return productoRepository.save(producto);
     }

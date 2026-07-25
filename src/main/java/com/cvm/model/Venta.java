@@ -1,4 +1,5 @@
 package com.cvm.model;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,25 +17,39 @@ public class Venta {
     @Id
     private String id;
     private String turnoId;
-
-    private String numeroGuia; // Ej: "GUI-10025" para imprimir
-    private String tipoVenta;  // "BRIGADA", "APOYO_MINERO", "SUBSIDIO"
+    private String numeroGuia;
 
     // Relaciones
     private String productoId;
     private String nombreProducto;
     private String puntoDistribucionId;
     private String nombreCentro;
-    private String usuarioCajeroId; // Quien hizo la venta
+    private String usuarioCajeroId;
 
     // Datos Financieros y de Inventario
+    private Double cantidadSolicitada;
     private Double cantidadEntregada;
-    private Double totalOroRecaudado;
 
-    // Beneficiario
-    private String beneficiarioId; // Puede ser null en subsidios
+    // Usaremos SOLO este para el costo total
+    private Double montoTotalOro;
+
+    // Beneficiario (Minero o Subsidio)
+    private String mineroId;
+    private String beneficiarioId;
     private String beneficiarioNombre;
-    private String observaciones; // Obligatorio en subsidios
+    private String observaciones;
 
     private LocalDateTime fechaVenta;
+    private LocalDateTime fechaUltimoDespacho;
+
+    private TipoVenta tipoVenta;
+    private EstadoVenta estado;
+
+    private Boolean pagada;
+
+    public Double getCantidadPendiente() {
+        double solicitada = this.cantidadSolicitada != null ? this.cantidadSolicitada : 0.0;
+        double entregada = this.cantidadEntregada != null ? this.cantidadEntregada : 0.0;
+        return solicitada - entregada;
+    }
 }

@@ -13,6 +13,10 @@ public interface VentaService{
     Venta findById(String id);
     List<Venta> findAll();
     List<Venta> findByBeneficiarioId(String beneficiarioId);
+    List<Venta> obtenerCreditosPendientes();
+    Venta pagarCredito(String ventaId, String emailCajero);
+    List<Venta> obtenerVentasPendientesDeDespacho();
+    Venta procesarDespachoFisico(String ventaId, Double cantidadDespachada);
 
 
 }
