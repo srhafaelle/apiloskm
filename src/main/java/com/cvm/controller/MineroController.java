@@ -1,7 +1,8 @@
 package com.cvm.controller;
-
+import com.cvm.dto.ArrimeTicketRequest;
 import com.cvm.dto.MineroRequest;
-import com.cvm.model.BrigadaMinera;
+import com.cvm.dto.PagoRequest;
+import com.cvm.dto.PlanArrimeRequest;
 import com.cvm.model.Minero;
 import com.cvm.service.BrigadaService;
 import com.cvm.service.MineroService;
@@ -9,10 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
-import com.cvm.dto.PagoRequest;
-import com.cvm.dto.PlanArrimeRequest;
+
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -32,6 +32,7 @@ public class MineroController {
     public ResponseEntity<List<Minero>> getAllMineros() {
         return ResponseEntity.ok(mineroService.getAllMineros());
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<Minero> updateMinero(@PathVariable String id,
                                                @Valid @RequestBody MineroRequest request) {
@@ -53,9 +54,17 @@ public class MineroController {
         return ResponseEntity.ok(mineroService.asignarPlanArrime(id, request.getCuotaMensualAsignada()));
     }
 
+    // --- NUEVO ENDPOINT PARA RECIBIR EL TICKET DEL CONTRALOR (OFFLINE-FIRST) ---
     @PostMapping("/{id}/arrime/pagos")
-    public ResponseEntity<Minero> registrarPagoArrime(@PathVariable String id, @Valid @RequestBody PagoRequest request) {
-        return ResponseEntity.ok(mineroService.registrarPagoArrime(id, request.getMontoOro()));
+    public ResponseEntity<Minero> procesarTicketArrime(
+            @PathVariable String id,
+            @Valid @RequestBody ArrimeTicketRequest request,
+            Principal principal) {
+
+        // Extraemos el correo o ID del JWT del Contralor que sincroniza
+        String contralorEmail = principal != null ? principal.getName() : "SISTEMA";
+
+        return ResponseEntity.ok(mineroService.procesarTicketArrime(id, request, contralorEmail));
     }
 
     @PutMapping("/{id}/paralizar")

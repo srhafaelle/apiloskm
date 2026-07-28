@@ -1,19 +1,18 @@
 package com.cvm.service;
-
+import com.cvm.dto.ArrimeTicketRequest;
 import com.cvm.dto.MineroRequest;
 import com.cvm.model.BrigadaMinera;
 import com.cvm.model.CuotaArrime;
 import com.cvm.model.EstadoCuota;
 import com.cvm.model.Minero;
+import com.cvm.model.TipoMinero;
+import com.cvm.model.PlanArrime;
 import com.cvm.repository.BrigadaMineraRepository;
 import com.cvm.repository.MineroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import com.cvm.model.PlanArrime;
-import com.cvm.model.CuotaArrime;
-import com.cvm.model.EstadoCuota;
-import org.springframework.scheduling.annotation.Scheduled;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
@@ -38,11 +37,13 @@ public class MineroServiceImpl implements MineroService {
                 .apellidos(request.getApellidos())
                 .cedula(request.getCedula())
                 .cargo(request.getCargo())
-                .esFundador(request.isEsFundador())
+                .tipoMinero(request.getTipoMinero() != null ? request.getTipoMinero() : TipoMinero.TRABAJADOR)
+                .cuotaInscripcionOro(request.getCuotaInscripcionOro()) // Dinámico
                 .ubicacionTrabajo(request.getUbicacionTrabajo())
                 .equipos(request.getEquipos())
                 .build();
 
+        minero.generarNumeroUnico();
         return mineroRepository.save(minero);
     }
 
@@ -59,8 +60,7 @@ public class MineroServiceImpl implements MineroService {
 
     @Override
     public Minero updateMinero(String id, MineroRequest request) {
-        Minero minero = mineroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Minero no encontrado con el ID: " + id));
+        Minero minero = getMineroById(id);
 
         minero.setNombres(request.getNombres());
         minero.setApellidos(request.getApellidos());
@@ -68,20 +68,16 @@ public class MineroServiceImpl implements MineroService {
         minero.setEquipos(request.getEquipos());
         minero.setCargo(request.getCargo());
 
-        // Solo permitimos cambiar esFundador si no está actualmente en una brigada como fundador
-        if (request.isEsFundador() != minero.isEsFundador()) {
-            if (minero.getBrigadaActualId() != null) {
-                BrigadaMinera brigada = brigadaMineraRepository.findById(minero.getBrigadaActualId()).orElse(null);
-                if (brigada != null && brigada.getFundadoresIds().contains(minero.getId())) {
-                    throw new RuntimeException("No se puede cambiar el rol de fundador mientras pertenezca a una brigada como fundador. Retírelo primero.");
-                }
+        // Manejo del cambio de Tipo de Minero
+        if (request.getTipoMinero() != null && request.getTipoMinero() != minero.getTipoMinero()) {
+            if (minero.getBrigadaActualId() != null && minero.getTipoMinero() == TipoMinero.JEFE_BRIGADA) {
+                throw new RuntimeException("No puede degradar a un Jefe de Brigada mientras esté asignado a una. Retírelo primero.");
             }
-            minero.setEsFundador(request.isEsFundador());
+            minero.setTipoMinero(request.getTipoMinero());
         }
 
         return mineroRepository.save(minero);
     }
-
 
     @Override
     public Minero registrarPagoInscripcion(String mineroId, Double montoOro) {
@@ -94,8 +90,9 @@ public class MineroServiceImpl implements MineroService {
     public Minero asignarPlanArrime(String mineroId, Double cuotaMensual) {
         Minero minero = getMineroById(mineroId);
 
+        // Ya no exige 20g estrictos, verifica contra lo que el admin le asignó
         if (!minero.inscripcionSolvente()) {
-            throw new RuntimeException("El minero no puede iniciar un plan de arrime sin haber completado los 20g de inscripción.");
+            throw new RuntimeException("El minero debe saldar su cuota de inscripción (" + minero.getCuotaInscripcionOro() + "g) antes de tener un plan mensual fijo.");
         }
 
         PlanArrime plan = PlanArrime.builder()
@@ -108,16 +105,13 @@ public class MineroServiceImpl implements MineroService {
         return mineroRepository.save(minero);
     }
 
-    @Override
-    public Minero registrarPagoArrime(String mineroId, Double montoOro) {
+    // EL NUEVO MÉTODO QUE RECIBE EL TICKET DEL CONTRALOR (OFFLINE-FIRST)
+    public Minero procesarTicketArrime(String mineroId, ArrimeTicketRequest ticket, String contralorEmail) {
         Minero minero = getMineroById(mineroId);
+        Double oroRestante = ticket.getMontoOro();
 
+        // 1. Si el minero tiene deudas viejas (de su Plan de Arrime), las saldamos primero
         List<CuotaArrime> deudas = minero.obtenerMesesEnDeuda();
-        if (deudas.isEmpty()) {
-            throw new RuntimeException("El minero no tiene cuotas de arrime pendientes por pagar.");
-        }
-
-        Double oroRestante = montoOro;
 
         for (CuotaArrime cuota : deudas) {
             if (oroRestante <= 0) break;
@@ -128,24 +122,50 @@ public class MineroServiceImpl implements MineroService {
                 cuota.setMontoPagadoOro(cuota.getMontoPagadoOro() + saldoPendiente);
                 cuota.setEstado(EstadoCuota.PAGADA);
                 cuota.setFechaPagoCompletado(LocalDateTime.now());
+                cuota.setNumeroTicket(ticket.getNumeroTicket());
+                cuota.setContralorEmailId(contralorEmail);
+                cuota.setFechaCobroLocal(ticket.getFechaCobroLocal());
+
                 oroRestante -= saldoPendiente;
             } else {
                 cuota.setMontoPagadoOro(cuota.getMontoPagadoOro() + oroRestante);
                 oroRestante = 0.0;
             }
         }
+
+        // 2. Si sobró oro, o si el minero NO TENÍA DEUDAS ni plan, registramos un Cobro Espontáneo
+        if (oroRestante > 0) {
+            CuotaArrime abonoExtra = CuotaArrime.builder()
+                    .periodo("Recaudación Campo - " + ticket.getFechaCobroLocal().toLocalDate().toString())
+                    .tipoCobro(ticket.getTipoCobro() != null ? ticket.getTipoCobro() : "ESPONTANEO")
+                    .montoExigidoOro(oroRestante)
+                    .montoPagadoOro(oroRestante)
+                    .estado(EstadoCuota.PAGADA)
+                    .fechaPagoCompletado(LocalDateTime.now()) // Fecha de sincronización
+                    .numeroTicket(ticket.getNumeroTicket())
+                    .contralorEmailId(contralorEmail)
+                    .fechaCobroLocal(ticket.getFechaCobroLocal()) // Fecha real de la tablet
+                    .build();
+
+            minero.getHistorialCuotas().add(abonoExtra);
+        }
+
         return mineroRepository.save(minero);
+    }
+
+    // Mantenemos el antiguo para retrocompatibilidad rápida (opcional)
+    @Override
+    public Minero registrarPagoArrime(String mineroId, Double montoOro) {
+        throw new RuntimeException("Método obsoleto. Use procesarTicketArrime que incluye auditoría de campo.");
     }
 
     @Override
     public Minero togglePausaOperaciones(String mineroId) {
         Minero minero = getMineroById(mineroId);
-        // Invierte el estado: Si estaba paralizado lo activa, si estaba activo lo paraliza
         minero.setOperacionesParalizadas(!minero.isOperacionesParalizadas());
         return mineroRepository.save(minero);
     }
 
-    // Se ejecuta el día 1 de cada mes a medianoche
     @Override
     @Scheduled(cron = "0 0 0 1 * ?")
     public void generarCuotasMensualesMineros() {
@@ -155,7 +175,6 @@ public class MineroServiceImpl implements MineroService {
         String periodoActual = mes.substring(0, 1).toUpperCase() + mes.substring(1) + " " + hoy.getYear();
 
         for (Minero minero : mineros) {
-            // Regla: Solo genera cuota si el plan está activo y NO ESTÁ PARALIZADO
             if (minero.getPlanArrime() != null && minero.getPlanArrime().isActivo() && !minero.isOperacionesParalizadas()) {
 
                 minero.getHistorialCuotas().stream()
@@ -164,6 +183,7 @@ public class MineroServiceImpl implements MineroService {
 
                 CuotaArrime nuevaCuota = CuotaArrime.builder()
                         .periodo(periodoActual)
+                        .tipoCobro("PLAN_MENSUAL")
                         .montoExigidoOro(minero.getPlanArrime().getCuotaMensualAsignada())
                         .fechaVencimiento(hoy.plusMonths(1).withDayOfMonth(1).minusDays(1))
                         .build();

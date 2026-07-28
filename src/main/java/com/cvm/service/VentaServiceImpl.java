@@ -99,6 +99,9 @@ public class VentaServiceImpl implements VentaService {
                 .cantidadEntregada(0.0) // Inicia en cero, no ha salido por la manguera
                 .estado(EstadoVenta.PENDIENTE_ENTREGA)
 
+                .nombreChofer(request.getNombreChofer())
+                .direccionDestino(request.getDireccionDestino())
+
                 .montoTotalOro(costoTotalOro)
                 .mineroId(request.getMineroId())
                 .beneficiarioId(request.getBeneficiarioId())

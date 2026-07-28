@@ -93,4 +93,9 @@ public class BrigadaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/dashboard")
+    public ResponseEntity<com.cvm.dto.DashboardResponse> getDashboardMetrics() {
+        return ResponseEntity.ok(brigadaService.obtenerMetricasDashboard());
+    }
+
 }

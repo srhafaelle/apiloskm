@@ -41,7 +41,7 @@ public class BrigadaServiceImpl implements BrigadaService {
                 .orElseThrow(() -> new RuntimeException("Minero responsable no encontrado"));
 
         // Validar que el responsable no sea fundador de otra brigada
-        if (responsable.getBrigadaActualId() != null && responsable.isEsFundador()) {
+        if (responsable.getBrigadaActualId() != null) {
             throw new RuntimeException("El minero responsable ya es fundador de otra brigada y no puede liderar una nueva.");
         }
 
@@ -57,7 +57,7 @@ public class BrigadaServiceImpl implements BrigadaService {
 
         // Actualizar datos del minero
         responsable.setBrigadaActualId(brigadaGuardada.getId());
-        responsable.setEsFundador(true);  // se asegura que sea fundador
+       // se asegura que sea fundador
         mineroRepository.save(responsable);
 
         return brigadaGuardada;
@@ -78,7 +78,7 @@ public class BrigadaServiceImpl implements BrigadaService {
         }
 
         // Validar restricciones según tipo de miembro
-        if (minero.isEsFundador()) {
+        if (minero.getBrigadaActualId() != null) {
             // No puede estar en otra brigada como fundador
             if (minero.getBrigadaActualId() != null) {
                 BrigadaMinera brigadaAnterior = brigadaRepository.findById(minero.getBrigadaActualId())
@@ -380,7 +380,7 @@ public class BrigadaServiceImpl implements BrigadaService {
             // 3. Calcular Cuotas de Arrime
             if (brigada.getHistorialCuotas() != null) {
                 for (CuotaArrime cuota : brigada.getHistorialCuotas()) {
-                    LocalDateTime fechaReferencia = cuota.getFechaPago() != null ? cuota.getFechaPago() : cuota.getFechaPagoCompletado();
+                    LocalDateTime fechaReferencia = cuota.getFechaPagoCompletado() != null ? cuota.getFechaPagoCompletado() : cuota.getFechaPagoCompletado();
                     if (fechaReferencia != null) {
                         LocalDate fechaPago = fechaReferencia.toLocalDate();
                         if (!fechaPago.isBefore(inicio) && !fechaPago.isAfter(fin)) {

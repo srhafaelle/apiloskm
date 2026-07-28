@@ -30,6 +30,9 @@ public class Venta {
     private Double cantidadSolicitada;
     private Double cantidadEntregada;
 
+    private String nombreChofer;
+    private String direccionDestino;
+
     // Usaremos SOLO este para el costo total
     private Double montoTotalOro;
 

@@ -1,5 +1,5 @@
 package com.cvm.dto;
-
+import com.cvm.model.TipoMinero;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -17,7 +17,10 @@ public class MineroRequest {
     @NotBlank(message = "El cargo es obligatorio")
     private String cargo;
 
-    private boolean esFundador = false;
+    // --- NUEVOS CAMPOS ---
+    private TipoMinero tipoMinero;
+    private Double cuotaInscripcionOro; // El admin decide cuánto cobrarle (ej: 0.2, 0.5)
+
     private String ubicacionTrabajo;
     private String equipos;
 }

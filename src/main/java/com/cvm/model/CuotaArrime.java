@@ -1,5 +1,4 @@
 package com.cvm.model;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,22 +17,31 @@ public class CuotaArrime {
     @Builder.Default
     private String idCuota = UUID.randomUUID().toString();
 
-    private String periodo; // Ej: "Junio 2026"
-    private Double montoExigidoOro; // Lo que se le determinó ese mes
+    private String numeroTicket;
+
+    private  String contralorEmailId;
+
+    private String periodo; // Ej: "Junio 2026" (Equivale a 'mesCorrespondiente' en Flutter)
+
+    private Double montoExigidoOro;
+
+    private  LocalDateTime fechaCobroLocal;
 
     @Builder.Default
     private Double montoPagadoOro = 0.0;
 
     private LocalDate fechaVencimiento;
 
-    private LocalDateTime fechaPago;
+    private String tipoCobro;
+
     @Builder.Default
-    private EstadoCuota estado = EstadoCuota.PENDIENTE;
+    private EstadoCuota estado = EstadoCuota.PENDIENTE; // PENDIENTE, PARCIAL, PAGADA
 
-    private LocalDateTime fechaPagoCompletado;
+    private LocalDateTime fechaPagoCompletado; // Solo se llena si se pagó toda
 
-    // Método útil para saber cuánto falta para cerrar este mes
+    // Método helper
     public Double getSaldoPendiente() {
+        if (montoExigidoOro == null) return 0.0;
         return Math.max(0, montoExigidoOro - montoPagadoOro);
     }
 }

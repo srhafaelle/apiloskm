@@ -28,6 +28,8 @@ public class VentaRequest {
     private String beneficiarioId;
     private String beneficiarioNombre;
     private String observaciones;
+    private String nombreChofer;
+    private String direccionDestino;
 
     @NotNull(message = "El monto en oro es obligatorio")
     private Double montoOro;
