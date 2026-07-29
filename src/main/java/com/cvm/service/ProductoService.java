@@ -5,6 +5,7 @@ import com.cvm.model.Producto;
 import java.util.List;
 
 public interface ProductoService {
+    //comentario dde cambio
     Producto createProducto(ProductoRequest request);
     List<Producto> getAllProductos();
     Producto updateProducto(String id, ProductoRequest request);

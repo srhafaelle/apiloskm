@@ -10,7 +10,7 @@ public class DashboardResponse {
     // Métricas Generales
     private int totalBrigadasRegistradas;
     private int totalBrigadasMorosas;
-
+    //comentario dde cambio
     // Métricas de Oro
     private Double totalOroRecaudadoInscripciones;
     private Double totalOroRecaudadoArrime;

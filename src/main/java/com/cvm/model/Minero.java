@@ -55,7 +55,7 @@ public class Minero {
 
     // --- AHORA ES DINÁMICO (Sin valor quemado de 20.0) ---
     private Double cuotaInscripcionOro;
-
+    //comentario dde cambio
     @Builder.Default
     private Double oroPagadoHastaLaFecha = 0.0;
 

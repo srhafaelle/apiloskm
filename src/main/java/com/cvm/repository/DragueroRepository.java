@@ -12,4 +12,5 @@ public interface DragueroRepository extends MongoRepository<Draguero, String> {
 
     // Método para el buscador del frontend
     List<Draguero> findByNombresContainingIgnoreCaseOrCedulaContainingIgnoreCase(String nombres, String cedula);
+    //comentario dde cambio
 }

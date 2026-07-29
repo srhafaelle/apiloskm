@@ -25,4 +25,5 @@ public class DespachoController {
         String emailCajero = principal.getName();
         return ResponseEntity.ok(despachoService.registrarDespachoGlobal(request, emailCajero));
     }
+    //comentario dde cambio
 }

@@ -3,5 +3,6 @@ import com.cvm.dto.AnalyticsResponse;
 import java.time.LocalDate;
 
 public interface AnalyticsService {
+    //comentario dde cambio
     AnalyticsResponse calcularMetricasGlobales(LocalDate fechaInicio, LocalDate fechaFin, String brigadaId, String mineroId);
 }

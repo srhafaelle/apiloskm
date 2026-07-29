@@ -8,7 +8,7 @@ import lombok.Data;
 public class DespachoPOSRequest {
     @NotNull(message = "El tipo de despacho es obligatorio")
     private TipoDespacho tipoDespacho;
-
+    //comentario dde cambio
     private String productoId;
     private Double cantidad;
     private String puntoDistribucionId;

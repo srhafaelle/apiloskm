@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document(collection = "ventas")
 public class Venta {
+    //comentario dde cambio
     @Id
     private String id;
     private String turnoId;

@@ -16,7 +16,7 @@ public class Arrime {
 
     @Id
     private String id;
-
+    //comentario dde cambio
     // Referencia al minero que aportó
     private String mineroId;
     private String mineroNombre;

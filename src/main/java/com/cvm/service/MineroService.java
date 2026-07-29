@@ -11,7 +11,7 @@ public interface MineroService {
     Minero getMineroById(String id);
     Minero updateMinero(String id, MineroRequest request);
 
-
+    //comentario dde cambio
     // NUEVOS MÉTODOS FINANCIEROS Y OPERATIVOS
     Minero registrarPagoInscripcion(String mineroId, Double montoOro);
     Minero asignarPlanArrime(String mineroId, Double cuotaMensual);

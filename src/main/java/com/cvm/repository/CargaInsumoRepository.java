@@ -4,5 +4,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface CargaInsumoRepository extends MongoRepository<CargaInsumo, String> {
 
-
+//comentario dde cambio
 }

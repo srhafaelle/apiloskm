@@ -9,6 +9,7 @@ import java.util.List;
 
 @Data
 public class TurnoResponse {
+    //comentario dde cambio
     private String id;
     private String usuarioCajeroId;
     private String nombreCentro;

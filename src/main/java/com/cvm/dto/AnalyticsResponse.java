@@ -17,7 +17,7 @@ public class AnalyticsResponse {
     private Double totalLitrosVendidos;
     private Double totalLitrosDisponiblesStock;
     private List<InsumoLitrosDetalle> detalleInsumosLitros;
-
+    //comentario dde cambio
     // Series de Tiempo Comparativas para Gráficos
     private Map<String, Double> comparativaDiaria;   // "YYYY-MM-DD" -> Monto Oro
     private Map<String, Double> comparativaSemanal;  // "Semana X" -> Monto Oro

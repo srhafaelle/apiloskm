@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PuntoDistribucionRepository extends MongoRepository<PuntoDistribucion, String> {
+    //comentario dde cambio
 }

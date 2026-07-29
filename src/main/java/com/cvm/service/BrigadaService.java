@@ -22,4 +22,5 @@ public interface BrigadaService {
     TesoreriaResponse obtenerTesoreriaPorFechas(LocalDate inicio, LocalDate fin);
     void removerDeBrigadaAnterior(String brigadaAnteriorId, String mineroId);
     BrigadaMinera getBrigadaById(String id);
+    //comentario dde cambio
 }

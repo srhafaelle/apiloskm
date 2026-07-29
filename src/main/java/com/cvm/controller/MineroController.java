@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/v1/mineros")
 @RequiredArgsConstructor
 public class MineroController {
-
+    //comentario dde cambio
     private final MineroService mineroService;
     private final BrigadaService brigadaService;
 

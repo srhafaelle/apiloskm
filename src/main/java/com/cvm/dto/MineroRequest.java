@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class MineroRequest {
+    //comentario dde cambio
     @NotBlank(message = "Los nombres son obligatorios")
     private String nombres;
 

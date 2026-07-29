@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Document(collection = "brigadas")
 public class BrigadaMinera {
-
+    //comentario dde cambio
     @Id
     private String id;
 

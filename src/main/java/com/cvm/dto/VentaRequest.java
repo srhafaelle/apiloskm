@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class VentaRequest {
+    //comentario dde cambio
 
     // Cambiamos @NotBlank por @NotNull porque es un Enum
     @NotNull(message = "El tipo de venta es obligatorio")

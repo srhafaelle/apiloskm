@@ -25,7 +25,7 @@ public class DashboardController {
 
     private final BrigadaService brigadaService;
     private final ProductoService productoService;
-
+    //comentario dde cambio
     @GetMapping
     public ResponseEntity<DashboardResponse> getMetricas() {
         return ResponseEntity.ok(brigadaService.obtenerMetricasDashboard());

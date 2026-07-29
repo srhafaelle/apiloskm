@@ -7,7 +7,7 @@ import lombok.Data;
 public class BrigadaRequest {
     @NotBlank(message = "El nombre de la brigada es obligatorio")
     private String nombreBrigada;
-
+    //comentario dde cambio
     // Al registrar, podemos pasar el ID del minero líder o responsable inicial
     @NotBlank(message = "Debe asignar un minero responsable (ID)")
     private String mineroResponsableId;

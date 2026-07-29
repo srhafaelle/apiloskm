@@ -9,6 +9,7 @@ import java.util.Map;
 @Data
 @Builder
 public class ErrorResponse {
+    //comentario dde cambio
     private LocalDateTime timestamp;
     private int status;
     private String error;

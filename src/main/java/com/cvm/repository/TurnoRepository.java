@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface TurnoRepository extends MongoRepository<Turno, String> {
     // Busca si un usuario específico tiene un turno en estado ABIERTO
     Optional<Turno> findByUsuarioCajeroIdAndEstado(String usuarioCajeroId, EstadoTurno estado);
+    //comentario dde cambio
 }

@@ -10,6 +10,7 @@ import java.time.ZoneId;
 
 @Data
 public class ProductoRequest {
+    //comentario dde cambio
     @NotBlank(message = "El nombre del producto es obligatorio")
     private String nombre;
 

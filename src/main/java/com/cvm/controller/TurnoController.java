@@ -17,7 +17,7 @@ import java.util.List;
 public class TurnoController {
 
     private final TurnoService turnoService;
-
+    //comentario dde cambio
     @PostMapping("/abrir")
     public ResponseEntity<TurnoResponse> abrirTurno(
             @Valid @RequestBody TurnoAperturaRequest request,

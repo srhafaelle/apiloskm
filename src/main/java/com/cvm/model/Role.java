@@ -1,6 +1,7 @@
 package com.cvm.model;
 
 public enum Role {
+    //comentario dde cambio
     ROLE_USER,
     ROLE_ADMIN,
     ROLE_MANAGER,

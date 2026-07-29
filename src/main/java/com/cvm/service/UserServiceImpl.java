@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
+    //comentario dde cambio
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; // Inyectamos el encriptador
 

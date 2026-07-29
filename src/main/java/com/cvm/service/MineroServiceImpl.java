@@ -31,7 +31,7 @@ public class MineroServiceImpl implements MineroService {
         if (mineroRepository.existsByCedula(request.getCedula())) {
             throw new RuntimeException("Ya existe un minero registrado con la cédula: " + request.getCedula());
         }
-
+//comentario dde cambio
         Minero minero = Minero.builder()
                 .nombres(request.getNombres())
                 .apellidos(request.getApellidos())

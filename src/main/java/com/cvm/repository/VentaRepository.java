@@ -7,6 +7,7 @@ import java.util.List;
 
 
 public interface VentaRepository extends MongoRepository<Venta, String> {
+        //comentario dde cambio
 
 
         List<Venta> findByTurnoId(String turnoId);

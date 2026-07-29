@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface ProductoRepository extends MongoRepository<Producto, String> {
     Optional<Producto> findByNombre(String nombre);
+    //comentario dde cambio
 }

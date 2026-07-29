@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class PagoRequest {
+    //comentario dde cambio
     @NotNull(message = "El monto en oro es obligatorio")
     @Min(value = 0, message = "El monto no puede ser negativo")
     private Double montoOro;

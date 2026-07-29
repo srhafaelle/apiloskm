@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class VentaServiceImpl implements VentaService {
-
+    //comentario dde cambio
     private final VentaRepository ventaRepository;
     private final ProductoRepository productoRepository;
     private final PuntoDistribucionRepository puntoDistribucionRepository;

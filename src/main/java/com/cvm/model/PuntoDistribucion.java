@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document(collection = "puntos_distribucion")
 public class PuntoDistribucion {
-
+    //comentario dde cambio
     @Id
     private String id;
 

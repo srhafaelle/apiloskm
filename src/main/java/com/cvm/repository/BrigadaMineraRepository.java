@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface BrigadaMineraRepository extends MongoRepository<BrigadaMinera, String> {
     Optional<BrigadaMinera> findByNumeroUnicoRegistro(String numeroUnicoRegistro);
     Optional<BrigadaMinera> findByNombreBrigada(String nombreBrigada);
+    //comentario dde cambio
 }

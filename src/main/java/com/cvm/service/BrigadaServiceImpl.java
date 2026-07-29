@@ -36,7 +36,7 @@ public class BrigadaServiceImpl implements BrigadaService {
         if (existente.isPresent()) {
             throw new RuntimeException("Ya existe una brigada con el nombre: " + request.getNombreBrigada());
         }
-
+//comentario dde cambio
         Minero responsable = mineroRepository.findById(request.getMineroResponsableId())
                 .orElseThrow(() -> new RuntimeException("Minero responsable no encontrado"));
 

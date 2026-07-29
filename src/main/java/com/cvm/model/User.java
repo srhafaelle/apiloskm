@@ -19,6 +19,7 @@ import java.util.Set;
 @Document(collection = "users")
 @TypeAlias("User")
 public class User {
+    //comentario dde cambio
 
     @Id
     private String id;

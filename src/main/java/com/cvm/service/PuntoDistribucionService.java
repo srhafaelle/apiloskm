@@ -5,6 +5,7 @@ import com.cvm.model.PuntoDistribucion;
 import java.util.List;
 
 public interface PuntoDistribucionService {
+    //comentario dde cambio
     PuntoDistribucion createPuntoDistribucion(PuntoDistribucionRequest request);
     List<PuntoDistribucion> getAllPuntos();
     PuntoDistribucion toggleActivo(String id); // Para pausar un centro sin borrarlo

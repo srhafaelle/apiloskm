@@ -24,4 +24,5 @@ public class CargaInsumo {
     private Double cantidadLitros;
     private String usuarioReceptor; // Quien recibió el camión
     private LocalDateTime fechaRecepcion;
+    //comentario dde cambio
 }

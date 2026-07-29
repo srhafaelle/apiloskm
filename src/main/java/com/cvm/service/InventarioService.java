@@ -21,7 +21,7 @@ public class InventarioService {
         this.productoRepository = productoRepository;
         this.ventaRepository = ventaRepository;
     }
-
+//comentario dde cambio
     /**
      * FASE 1: Se ejecuta desde el POS (Caja).
      * Cobra el dinero y compromete el inventario, pero no toca el físico.

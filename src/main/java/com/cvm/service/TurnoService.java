@@ -8,5 +8,5 @@ public interface TurnoService {
     TurnoResponse abrirTurno(TurnoAperturaRequest request, String emailCajero);
     TurnoResponse obtenerTurnoActivo(String emailCajero);
     TurnoResponse cerrarTurno(String emailCajero);
-    List<TurnoResponse> obtenerTodosLosTurnos();
+    List<TurnoResponse> obtenerTodosLosTurnos();//comentario dde cambio
 }

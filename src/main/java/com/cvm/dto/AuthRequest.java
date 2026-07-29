@@ -9,7 +9,7 @@ public class AuthRequest {
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "Formato de email inválido")
     private String email;
-
+    //comentario dde cambio
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 }

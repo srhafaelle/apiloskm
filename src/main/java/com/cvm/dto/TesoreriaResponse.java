@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TesoreriaResponse {
+    //comentario dde cambio
     private Double totalVentas;
     private Double totalInscripciones;
     private Double totalArrime;

@@ -20,7 +20,7 @@ import java.util.Map;
 public class ProductoController {
 
     private final ProductoService productoService;
-
+    //comentario dde cambio
     @PostMapping
     public ResponseEntity<Producto> createProducto(@Valid @RequestBody ProductoRequest request) {
         return new ResponseEntity<>(productoService.createProducto(request), HttpStatus.CREATED);

@@ -40,6 +40,7 @@ public class ArrimeController {
         String contralorEmail = authentication.getName();
 
         arrimeService.procesarArrimesEnLote(requests, contralorEmail);
+//comentario dde cambio
 
         return ResponseEntity.ok(Map.of("mensaje", "Sincronización completada exitosamente."));
     }

@@ -21,6 +21,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 @Service
 @RequiredArgsConstructor
 public class AnalyticsServiceImpl implements AnalyticsService {
+    //comentario dde cambio
 
     private final MongoTemplate mongoTemplate;
 

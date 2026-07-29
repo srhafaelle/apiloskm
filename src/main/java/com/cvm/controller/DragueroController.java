@@ -14,7 +14,7 @@ import java.util.List;
 public class DragueroController {
 
     private final DragueroService dragueroService;
-
+    //comentario dde cambio
     @PostMapping
     public ResponseEntity<Draguero> registrar(@RequestBody DragueroRequest request) {
         return ResponseEntity.ok(dragueroService.registrarDraguero(request));

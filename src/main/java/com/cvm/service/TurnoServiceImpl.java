@@ -20,7 +20,7 @@ public class TurnoServiceImpl implements TurnoService {
 
     private final TurnoRepository turnoRepository;
     private final VentaRepository ventaRepository;
-
+    //comentario dde cambio
     @Override
     public TurnoResponse abrirTurno(TurnoAperturaRequest request, String emailCajero) {
         Optional<Turno> turnoExistente = turnoRepository.findByUsuarioCajeroIdAndEstado(emailCajero, EstadoTurno.ABIERTO);

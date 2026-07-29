@@ -15,7 +15,7 @@ public class ArrimeTicketRequest {
     private String numeroTicket;
 
     private String tipoCobro; // ESPONTANEO, PORCENTAJE_DIARIO
-
+    //comentario dde cambio
     @NotNull(message = "La fecha local de cobro es obligatoria")
     private LocalDateTime fechaCobroLocal;
 }

@@ -3,6 +3,7 @@ import lombok.Data;
 
 @Data
 public class DragueroRequest {
+    //comentario dde cambio
     private String nombres;
     private String apellidos;
     private String cedula;

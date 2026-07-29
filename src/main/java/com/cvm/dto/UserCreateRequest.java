@@ -9,6 +9,7 @@ import java.util.Set;
 
 @Data
 public class UserCreateRequest {
+    //comentario dde cambio
 
     @NotBlank(message = "El nombre no puede estar vacío")
     private String firstName;

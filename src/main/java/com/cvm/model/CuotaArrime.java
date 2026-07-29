@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CuotaArrime {
-
+    //comentario dde cambio
     @Builder.Default
     private String idCuota = UUID.randomUUID().toString();
 

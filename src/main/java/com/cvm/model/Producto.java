@@ -59,7 +59,7 @@ public class Producto {
         double comprometido = (this.stockComprometido != null) ? this.stockComprometido : 0.0;
         return fisico - comprometido;
     }
-
+    //comentario dde cambio
     // Este método lo ajustamos para que sume el inventario FÍSICO de todos los tanques/centros
     public void recalcularStockGlobal() {
         if (this.inventarioPorCentro != null) {

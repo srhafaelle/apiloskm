@@ -102,6 +102,7 @@ public class ArrimeService {
                     log.warn("El ticket {} ya existe en la BD. Saltando...", req.getNumeroTicket());
                     continue;
                 }
+                //comentario dde cambio
                 procesarArrime(req, contralorEmail);
             } catch (Exception e) {
                 log.error("Error al sincronizar el ticket {}: {}", req.getNumeroTicket(), e.getMessage());

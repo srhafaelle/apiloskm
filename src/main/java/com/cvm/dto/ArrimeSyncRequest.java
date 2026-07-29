@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ArrimeSyncRequest {
+    //comentario dde cambio
     private String mineroId;
     private String numeroTicket;
     private Double montoOro;

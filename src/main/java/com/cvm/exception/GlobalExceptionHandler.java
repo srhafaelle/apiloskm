@@ -16,6 +16,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    //comentario dde cambio
 
     // 1. Manejo de errores de validación (@Valid en los DTOs)
     @ExceptionHandler(MethodArgumentNotValidException.class)

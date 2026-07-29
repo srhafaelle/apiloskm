@@ -97,5 +97,6 @@ public class BrigadaController {
     public ResponseEntity<com.cvm.dto.DashboardResponse> getDashboardMetrics() {
         return ResponseEntity.ok(brigadaService.obtenerMetricasDashboard());
     }
+    //comentario dde cambio
 
 }

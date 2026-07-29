@@ -54,7 +54,7 @@ public class VentaController {
 
           return ventaService.findAll();
     }
-
+//comentario dde cambio
 
     @GetMapping("/minero/{beneficiarioId}")
     public ResponseEntity<List<Venta>> obtenerVentasPorMinero(@PathVariable String beneficiarioId) {

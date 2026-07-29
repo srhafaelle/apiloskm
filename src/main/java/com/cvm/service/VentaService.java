@@ -8,7 +8,7 @@ import java.util.Optional;
 
 
 public interface VentaService{
-
+    //comentario dde cambio
     Venta procesarVenta(VentaRequest request, String emailCajero);
     Venta findById(String id);
     List<Venta> findAll();

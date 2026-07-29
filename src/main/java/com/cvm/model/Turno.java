@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Document(collection = "turnos")
 public class Turno {
+    //comentario dde cambio
 
     @Id
     private String id;
