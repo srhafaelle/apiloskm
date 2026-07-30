@@ -25,49 +25,53 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional
     public Venta procesarVenta(VentaRequest request, String emailCajero) {
-
-        // 1. VALIDACIÓN DEL TURNO
+        // 1. Turno activo
         Turno turnoActivo = turnoRepository.findByUsuarioCajeroIdAndEstado(emailCajero, EstadoTurno.ABIERTO)
-                .orElseThrow(() -> new RuntimeException("Error: Debe abrir un turno de caja antes de procesar ventas."));
+                .orElseThrow(() -> new RuntimeException("Debe abrir un turno antes de procesar ventas."));
 
         if (!turnoActivo.getPuntoDistribucionId().equals(request.getPuntoDistribucionId())) {
-            throw new RuntimeException("Error de seguridad: Está intentando despachar desde un almacén distinto al de su turno activo.");
+            throw new RuntimeException("El turno pertenece a otro centro de distribución.");
         }
 
+        // 2. Producto y centro
         Producto producto = productoRepository.findById(request.getProductoId())
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
 
         PuntoDistribucion centro = puntoDistribucionRepository.findById(request.getPuntoDistribucionId())
-                .orElseThrow(() -> new RuntimeException("Punto de distribución no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Punto de distribución no encontrado."));
 
-        // 2. VALIDACIÓN DE INVENTARIO (Nueva Arquitectura)
-        // Ya no miramos solo el físico, miramos el Disponible (Físico - Comprometido)
-        if (producto.getStockDisponible() < request.getCantidadSolicitada()) {
-            throw new RuntimeException("Stock insuficiente. Disponible global: " + producto.getStockDisponible() + " " + producto.getUnidad());
+        // 3. Validación y descuento del inventario por centro
+        Producto.StockCentro stockCentro = producto.getInventarioPorCentro().stream()
+                .filter(sc -> sc.getPuntoDistribucionId().equals(centro.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("El producto no tiene inventario en " + centro.getNombre()));
+
+        if (stockCentro.getCantidad() < request.getCantidadSolicitada()) {
+            throw new RuntimeException("Stock insuficiente en " + centro.getNombre() +
+                    ". Disponible: " + stockCentro.getCantidad() + " " + producto.getUnidad());
         }
 
-        // 3. COMPROMETER EL INVENTARIO (No restamos el físico aún)
-        double stockComprometidoActual = producto.getStockComprometido() != null ? producto.getStockComprometido() : 0.0;
-        producto.setStockComprometido(stockComprometidoActual + request.getCantidadSolicitada());
-
-        // Calculamos el costo
-        Double costoTotalOro = 0.0;
-        if (request.getTipoVenta() != TipoVenta.SUBSIDIO) {
-            costoTotalOro = request.getMontoOro() != null ? request.getMontoOro() : (producto.getPrecioOro() * request.getCantidadSolicitada());
-
-            Double recaudadoHistorico = producto.getOroRecaudadoHistorico() != null ? producto.getOroRecaudadoHistorico() : 0.0;
-            producto.setOroRecaudadoHistorico(recaudadoHistorico + costoTotalOro);
-        }
-
+        // Descontar la cantidad física del centro
+        stockCentro.setCantidad(stockCentro.getCantidad() - request.getCantidadSolicitada());
+        producto.recalcularStockGlobal(); // actualiza stockDisponible si lo necesitas para reportes
         productoRepository.save(producto);
 
-        // 4. ACTUALIZAR ESTADÍSTICAS DEL TURNO (El cajero cuadra su caja con lo cobrado)
+        // 4. Calcular costo (solo si no es subsidio)
+        Double costoTotalOro = 0.0;
+        if (request.getTipoVenta() != TipoVenta.SUBSIDIO) {
+            costoTotalOro = request.getMontoOro() != null ? request.getMontoOro() :
+                    producto.getPrecioOro() * request.getCantidadSolicitada();
+            // Acumular histórico de oro recaudado
+            Double historico = producto.getOroRecaudadoHistorico() != null ? producto.getOroRecaudadoHistorico() : 0.0;
+            producto.setOroRecaudadoHistorico(historico + costoTotalOro);
+        }
+
+        // 5. Actualizar turno (estadísticas de caja)
         if (request.getTipoVenta() != TipoVenta.CREDITO && request.getTipoVenta() != TipoVenta.SUBSIDIO) {
             turnoActivo.setTotalOroRecaudado(turnoActivo.getTotalOroRecaudado() + costoTotalOro);
         }
-
         turnoActivo.setCantidadOperaciones(turnoActivo.getCantidadOperaciones() + 1);
-
+        // Actualizar resumen por insumo
         boolean insumoEncontrado = false;
         for (Turno.ResumenInsumo resumen : turnoActivo.getResumenInsumos()) {
             if (resumen.getProductoId().equals(producto.getId())) {
@@ -77,13 +81,13 @@ public class VentaServiceImpl implements VentaService {
             }
         }
         if (!insumoEncontrado) {
-            turnoActivo.getResumenInsumos().add(new Turno.ResumenInsumo(producto.getId(), producto.getNombre(), request.getCantidadSolicitada()));
+            turnoActivo.getResumenInsumos().add(new Turno.ResumenInsumo(
+                    producto.getId(), producto.getNombre(), request.getCantidadSolicitada()));
         }
         turnoRepository.save(turnoActivo);
 
-        // 5. CONSTRUIR Y GUARDAR LA VENTA PENDIENTE
+        // 6. Crear la venta (pendiente de entrega física)
         String numeroGuia = "GUI-" + System.currentTimeMillis();
-
         Venta nuevaVenta = Venta.builder()
                 .turnoId(turnoActivo.getId())
                 .numeroGuia(numeroGuia)
@@ -93,15 +97,11 @@ public class VentaServiceImpl implements VentaService {
                 .puntoDistribucionId(centro.getId())
                 .nombreCentro(centro.getNombre())
                 .usuarioCajeroId(emailCajero)
-
-                // Nuevos campos de la arquitectura
                 .cantidadSolicitada(request.getCantidadSolicitada())
-                .cantidadEntregada(0.0) // Inicia en cero, no ha salido por la manguera
+                .cantidadEntregada(0.0)
                 .estado(EstadoVenta.PENDIENTE_ENTREGA)
-
                 .nombreChofer(request.getNombreChofer())
                 .direccionDestino(request.getDireccionDestino())
-
                 .montoTotalOro(costoTotalOro)
                 .mineroId(request.getMineroId())
                 .beneficiarioId(request.getBeneficiarioId())
@@ -120,51 +120,18 @@ public class VentaServiceImpl implements VentaService {
     @Transactional
     public Venta procesarDespachoFisico(String ventaId, Double cantidadDespachada) {
         Venta venta = findById(ventaId);
-
         if (venta.getEstado() == EstadoVenta.ENTREGADA) {
             throw new RuntimeException("Esta orden ya fue despachada en su totalidad.");
         }
-
         if (cantidadDespachada > venta.getCantidadPendiente()) {
             throw new RuntimeException("No puedes despachar más de lo pendiente (" + venta.getCantidadPendiente() + ")");
         }
 
-        Producto producto = productoRepository.findById(venta.getProductoId()).orElseThrow();
-
-        // 1. Restar del centro de distribución específico
-        Producto.StockCentro stockCentro = producto.getInventarioPorCentro().stream()
-                .filter(sc -> sc.getPuntoDistribucionId().equals(venta.getPuntoDistribucionId()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Centro no encontrado en el producto."));
-
-        if (stockCentro.getCantidad() < cantidadDespachada) {
-            throw new RuntimeException("El tanque físico no tiene suficiente combustible para este despacho.");
-        }
-
-        stockCentro.setCantidad(stockCentro.getCantidad() - cantidadDespachada);
-
-        // 2. Liberar el stock comprometido
-        producto.setStockComprometido(producto.getStockComprometido() - cantidadDespachada);
-
-        // 3. Sumar a estadísticas históricas de despacho
-        Double despachadoHistorico = producto.getCantidadTotalDespachada() != null ? producto.getCantidadTotalDespachada() : 0.0;
-        producto.setCantidadTotalDespachada(despachadoHistorico + cantidadDespachada);
-
-        // Recalcular Físico global
-        producto.recalcularStockGlobal();
-        productoRepository.save(producto);
-
-        // 4. Actualizar estado de la venta
-        double entregada = (venta.getCantidadEntregada() != null ? venta.getCantidadEntregada() : 0.0) + cantidadDespachada;
-        venta.setCantidadEntregada(entregada);
+        // Actualizar cantidad entregada y estado (sin modificar inventario)
+        double nuevaEntregada = (venta.getCantidadEntregada() != null ? venta.getCantidadEntregada() : 0.0) + cantidadDespachada;
+        venta.setCantidadEntregada(nuevaEntregada);
         venta.setFechaUltimoDespacho(LocalDateTime.now());
-
-        if (venta.getCantidadPendiente() == 0) {
-            venta.setEstado(EstadoVenta.ENTREGADA);
-        } else {
-            venta.setEstado(EstadoVenta.ENTREGA_PARCIAL);
-        }
-
+        venta.setEstado(venta.getCantidadPendiente() == 0 ? EstadoVenta.ENTREGADA : EstadoVenta.ENTREGA_PARCIAL);
         return ventaRepository.save(venta);
     }
 
