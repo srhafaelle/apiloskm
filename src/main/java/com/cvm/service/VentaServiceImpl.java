@@ -21,7 +21,6 @@ public class VentaServiceImpl implements VentaService {
     private final ProductoRepository productoRepository;
     private final PuntoDistribucionRepository puntoDistribucionRepository;
     private final TurnoRepository turnoRepository;
-
     @Override
     @Transactional
     public Venta procesarVenta(VentaRequest request, String emailCajero) {
@@ -53,8 +52,9 @@ public class VentaServiceImpl implements VentaService {
 
         // Descontar la cantidad física del centro
         stockCentro.setCantidad(stockCentro.getCantidad() - request.getCantidadSolicitada());
-        producto.recalcularStockGlobal(); // actualiza stockDisponible si lo necesitas para reportes
-        productoRepository.save(producto);
+        producto.recalcularStockGlobal();
+
+        // ⚠️ ELIMINAMOS EL SAVE DE AQUÍ Y LO BAJAMOS
 
         // 4. Calcular costo (solo si no es subsidio)
         Double costoTotalOro = 0.0;
@@ -66,11 +66,15 @@ public class VentaServiceImpl implements VentaService {
             producto.setOroRecaudadoHistorico(historico + costoTotalOro);
         }
 
+        // ✅ AQUÍ ES EL LUGAR CORRECTO PARA GUARDAR EL PRODUCTO (Ya tiene el stock restado y el oro sumado)
+        productoRepository.save(producto);
+
         // 5. Actualizar turno (estadísticas de caja)
         if (request.getTipoVenta() != TipoVenta.CREDITO && request.getTipoVenta() != TipoVenta.SUBSIDIO) {
             turnoActivo.setTotalOroRecaudado(turnoActivo.getTotalOroRecaudado() + costoTotalOro);
         }
         turnoActivo.setCantidadOperaciones(turnoActivo.getCantidadOperaciones() + 1);
+
         // Actualizar resumen por insumo
         boolean insumoEncontrado = false;
         for (Turno.ResumenInsumo resumen : turnoActivo.getResumenInsumos()) {

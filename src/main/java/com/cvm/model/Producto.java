@@ -39,8 +39,8 @@ public class Producto {
     private Double cantidadTotalDespachada;
     private Double oroRecaudadoHistorico;
 
-    @Version
-    private Long version;
+   // @Version
+    //private Long version;
 
     @Data
     @AllArgsConstructor
