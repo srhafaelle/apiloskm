@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -110,5 +111,12 @@ public class ArrimeService {
                 // o continuar con los demás. Aquí continuamos para no trancar la cola entera por 1 error.
             }
         }
+    }
+
+    @Transactional
+    public List<Arrime> allArrime(){
+       List<Arrime> arrimes = arrimeRepository.findAll();
+       return  arrimes;
+
     }
 }

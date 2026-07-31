@@ -3,6 +3,7 @@ import com.cvm.dto.ArrimeSyncRequest;
 import com.cvm.model.Arrime;
 import com.cvm.service.ArrimeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -43,5 +44,11 @@ public class ArrimeController {
 //comentario dde cambio
 
         return ResponseEntity.ok(Map.of("mensaje", "Sincronización completada exitosamente."));
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<Arrime>> allArrimes(){
+
+        return ResponseEntity.ok(arrimeService.allArrime());
     }
 }
