@@ -51,16 +51,14 @@ public class BrigadaMinera {
     // ==========================================
     // HISTORIAL DE OPERACIONES
     // ==========================================
-    @Builder.Default
-    private List<Despacho> historialDespachos = new ArrayList<>();
+
 
     // ==========================================
     // NUEVO: PLAN DE ARRIME MENSUAL
     // ==========================================
     private PlanArrime planArrime;
 
-    @Builder.Default
-    private List<CuotaArrime> historialCuotas = new ArrayList<>();
+
 
     // ==========================================
     // MÉTODOS DE UTILIDAD PARA EL DASHBOARD
@@ -83,22 +81,6 @@ public class BrigadaMinera {
         return oroPagadoHastaLaFecha >= cuotaInscripcionOro;
     }
     // Calcula toda la deuda acumulada sumando las cuotas pendientes y vencidas
-    public Double obtenerDeudaTotalArrime() {
-        if (historialCuotas == null || historialCuotas.isEmpty()) return 0.0;
-
-        return historialCuotas.stream()
-                .filter(c -> c.getEstado() != EstadoCuota.PAGADA)
-                .mapToDouble(CuotaArrime::getSaldoPendiente)
-                .sum();
-    }
-    // Retorna solo la lista de los meses que no han pagado para mostrarlos en el Frontend
-    public List<CuotaArrime> obtenerMesesEnDeuda() {
-        if (historialCuotas == null) return new ArrayList<>();
-
-        return historialCuotas.stream()
-                .filter(c -> c.getEstado() != EstadoCuota.PAGADA)
-                .collect(Collectors.toList());
-    }
 
     @JsonIgnore
     public Set<String> getTodosLosMinerosIds() {

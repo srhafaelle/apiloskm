@@ -22,18 +22,32 @@ public class Arrime {
     private String mineroNombre;
     private String mineroCedula;
 
+
+    // Generado en Flutter (Ej: Cedula + Inicial + Fecha) para rastrear offline
+    private String numeroSeguimiento;
+
     // Datos del Ticket de Caja/Campo
     private String numeroTicket;
-    private Double montoOro;
+
+    //numero de seguimiento
+
+
+
+
+    //nueva logica de sector
+    private String sectorMineroId;
 
     // Puede ser: ESPONTANEO, PORCENTAJE_DIARIO, ABONO_CUOTA
-    private String tipoCobro;
+    private TipoDeArrime tipoDeArrime;
 
     // Quién recolectó el oro (del token JWT al sincronizar)
-    private String contralorEmailId;
+    private String contralor;
 
     // La hora real en que se imprimió el ticket offline
     private LocalDateTime fechaCobroLocal;
+
+    private Double produccion;
+    private Double montoOro;
 
     // Cuándo llegó este dato al servidor MongoDB
     @Builder.Default

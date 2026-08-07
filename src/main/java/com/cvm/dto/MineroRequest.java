@@ -1,11 +1,15 @@
 package com.cvm.dto;
+
+import com.cvm.model.Equipo;
 import com.cvm.model.TipoMinero;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class MineroRequest {
-    //comentario dde cambio
+
     @NotBlank(message = "Los nombres son obligatorios")
     private String nombres;
 
@@ -18,10 +22,10 @@ public class MineroRequest {
     @NotBlank(message = "El cargo es obligatorio")
     private String cargo;
 
-    // --- NUEVOS CAMPOS ---
     private TipoMinero tipoMinero;
-    private Double cuotaInscripcionOro; // El admin decide cuánto cobrarle (ej: 0.2, 0.5)
+    private Double cuotaInscripcionOro; // El admin decide cuánto cobrarle (ej: 20.0)
 
-    private String ubicacionTrabajo;
-    private String equipos;
+    // --- NUEVAS ESTRUCTURAS COMPATIBLES CON EL SERVICIO ---
+    private List<String> sectorMineroIds; // Lista de IDs de los sectores
+    private List<Equipo> equipos;         // Lista de objetos Equipo
 }
