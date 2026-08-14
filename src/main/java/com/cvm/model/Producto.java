@@ -1,9 +1,6 @@
 package com.cvm.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.Version;
@@ -17,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "productos")
+@Setter
+@Getter
 public class Producto {
 
     @Id
@@ -39,8 +38,9 @@ public class Producto {
     private Double cantidadTotalDespachada;
     private Double oroRecaudadoHistorico;
 
-   // @Version
-    //private Long version;
+
+
+
 
     @Data
     @AllArgsConstructor

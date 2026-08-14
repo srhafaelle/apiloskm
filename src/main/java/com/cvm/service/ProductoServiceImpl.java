@@ -1,6 +1,8 @@
 package com.cvm.service;
 
+import com.cvm.dto.IngresoStockRequest;
 import com.cvm.dto.ProductoRequest;
+import com.cvm.dto.ProductoStockResponse;
 import com.cvm.model.CargaInsumo;
 import com.cvm.model.Producto;
 import com.cvm.repository.CargaInsumoRepository;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,46 +59,57 @@ public class ProductoServiceImpl implements ProductoService {
 
         return productoRepository.save(producto);
     }
-
     @Override
     @Transactional
-    public Producto agregarStock(String productoId, String centroId, String nombreCentro, Double cantidad,
-                                 String numeroFactura, String usuarioReceptor) {
+    public Producto agregarStock(String productoId, IngresoStockRequest request, String usuarioReceptor) {
         Producto producto = productoRepository.findById(productoId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         Producto.StockCentro stockCentro = producto.getInventarioPorCentro().stream()
-                .filter(c -> c.getPuntoDistribucionId().equals(centroId))
+                .filter(c -> c.getPuntoDistribucionId().equals(request.getCentroId()))
                 .findFirst()
                 .orElse(null);
 
-        // Agregamos al tanque físico del centro
+        // Agregamos al tanque físico del centro (usando litrajeRecibido)
         if (stockCentro != null) {
-            stockCentro.setCantidad(stockCentro.getCantidad() + cantidad);
+            stockCentro.setCantidad(stockCentro.getCantidad() + request.getLitrajeRecibido());
         } else {
-            producto.getInventarioPorCentro().add(new Producto.StockCentro(centroId, nombreCentro, cantidad));
+            producto.getInventarioPorCentro().add(new Producto.StockCentro(
+                    request.getCentroId(), request.getNombreCentro(), request.getLitrajeRecibido()));
         }
 
-        // Magia: Esto recalculará automáticamente el stockFisico global
+        // Recalculamos el global
         producto.recalcularStockGlobal();
         Producto productoGuardado = productoRepository.save(producto);
 
-        // Registrar CargaInsumo
+        // Registrar CargaInsumo con todos los datos logísticos
         CargaInsumo carga = CargaInsumo.builder()
-                .numeroFactura(numeroFactura)
                 .productoId(productoId)
                 .nombreProducto(productoGuardado.getNombre())
-                .puntoDistribucionId(centroId)
-                .nombreCentro(nombreCentro)
-                .cantidadLitros(cantidad)
+                .puntoDistribucionId(request.getCentroId())
+                .nombreCentro(request.getNombreCentro())
+                .numeroDeFactura(request.getNumeroDeFactura())
+                .numeroDeControl(request.getNumeroDeControl())
+                .chofer(request.getChofer())
+                .idChofer(request.getIdChofer())
+                .fechaDeRecepcion(request.getFechaDeRecepcion() != null ? request.getFechaDeRecepcion() : LocalDateTime.now())
+                .fechaDeFacturacion(request.getFechaDeFacturacion())
+                .litrajeDeFactura(request.getLitrajeDeFactura())
+                .litrajeRecibido(request.getLitrajeRecibido())
+                .observacion(request.getObservacion())
                 .usuarioReceptor(usuarioReceptor)
-                .fechaRecepcion(LocalDateTime.now())
                 .build();
+
         cargaInsumoRepository.save(carga);
 
         return productoGuardado;
     }
 
+
+    @Override
+    public List<CargaInsumo> getHistorialCargas(String productoId) {
+        return cargaInsumoRepository.findByProductoIdOrderByFechaDeRecepcionDesc(productoId);
+    }
     @Override
     @Transactional
     public Producto transferirStock(String productoId, String origenId, String destinoId, String nombreDestino, Double cantidad) {
@@ -129,5 +143,19 @@ public class ProductoServiceImpl implements ProductoService {
         // Recalculamos global
         producto.recalcularStockGlobal();
         return productoRepository.save(producto);
+    }
+    @Override
+// Método en el servicio
+    public List<ProductoStockResponse> getStockPorPunto(String puntoId) {
+        List<Producto> productos = productoRepository.findAll();
+        return productos.stream()
+                .map(p -> {
+                    Producto.StockCentro centro = p.getInventarioPorCentro().stream()
+                            .filter(c -> c.getPuntoDistribucionId().equals(puntoId))
+                            .findFirst().orElse(null);
+                    double stock = (centro != null) ? centro.getCantidad() : 0.0;
+                    return new ProductoStockResponse(p.getId(), p.getNombre(), stock);
+                })
+                .collect(Collectors.toList());
     }
 }

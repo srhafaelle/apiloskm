@@ -1,4 +1,5 @@
 package com.cvm.service;
+import com.cvm.dto.ProductoStockResponse;
 import com.cvm.dto.TurnoAperturaRequest;
 import com.cvm.dto.TurnoResponse;
 import com.cvm.model.EstadoTurno;
@@ -20,13 +21,26 @@ public class TurnoServiceImpl implements TurnoService {
 
     private final TurnoRepository turnoRepository;
     private final VentaRepository ventaRepository;
-    //comentario dde cambio
+
+    private final ProductoService productoService;
+
     @Override
     public TurnoResponse abrirTurno(TurnoAperturaRequest request, String emailCajero) {
         Optional<Turno> turnoExistente = turnoRepository.findByUsuarioCajeroIdAndEstado(emailCajero, EstadoTurno.ABIERTO);
         if (turnoExistente.isPresent()) {
             throw new RuntimeException("Ya tienes un turno abierto en la estación: " + turnoExistente.get().getNombreCentro());
         }
+
+        // 1. Mapear los productos recibidos en el request al resumen inicial del turno
+        List<Turno.ResumenInsumo> resumenInicial = request.getProductos().stream()
+                .map(p -> new Turno.ResumenInsumo(
+                        p.getProductoId(),
+                        p.getNombreProducto() != null ? p.getNombreProducto() : "Desconocido",
+                        0.0, // totalLitrosEntregados arranca en 0
+                        p.getStockInicial(), // Stock inicial viene de Flutter (Request)
+                        0.0  // stockFinal aún no se conoce al abrir
+                ))
+                .collect(Collectors.toList());
 
         // 2. Crear el nuevo turno
         Turno nuevoTurno = Turno.builder()
@@ -35,6 +49,7 @@ public class TurnoServiceImpl implements TurnoService {
                 .nombreCentro(request.getNombreCentro())
                 .estado(EstadoTurno.ABIERTO)
                 .fechaApertura(LocalDateTime.now())
+                .resumenInsumos(resumenInicial) // Asignamos el inventario inicial
                 .build();
 
         Turno guardado = turnoRepository.save(nuevoTurno);
@@ -54,6 +69,23 @@ public class TurnoServiceImpl implements TurnoService {
         Turno turno = turnoRepository.findByUsuarioCajeroIdAndEstado(emailCajero, EstadoTurno.ABIERTO)
                 .orElseThrow(() -> new RuntimeException("No se encontró un turno abierto para cerrar."));
 
+        // 1. Obtener el stock físico real actual de los tanques al momento de cerrar
+        List<ProductoStockResponse> stocksAlCierre = productoService.getStockPorPunto(turno.getPuntoDistribucionId());
+
+        // 2. Actualizar el stock final en el resumen del turno
+        if (turno.getResumenInsumos() != null) {
+            for (Turno.ResumenInsumo insumo : turno.getResumenInsumos()) {
+                // Buscamos cuánto quedó de ese producto en la estación
+                double stockFisicoReal = stocksAlCierre.stream()
+                        .filter(s -> s.getProductoId().equals(insumo.getProductoId()))
+                        .mapToDouble(ProductoStockResponse::getStockActual)
+                        .findFirst()
+                        .orElse(0.0);
+
+                insumo.setStockFinal(stockFisicoReal);
+            }
+        }
+
         // 3. Sellar el turno
         turno.setEstado(EstadoTurno.CERRADO);
         turno.setFechaCierre(LocalDateTime.now());
@@ -63,8 +95,7 @@ public class TurnoServiceImpl implements TurnoService {
         return mapToResponse(guardado, ventasDelTurno);
     }
 
-    // Método utilitario para convertir la Entidad en un DTO limpio para el frontend
-    private TurnoResponse mapToResponse(Turno turno, List<Venta>ventas) {
+    private TurnoResponse mapToResponse(Turno turno, List<Venta> ventas) {
         TurnoResponse response = new TurnoResponse();
         response.setId(turno.getId());
         response.setUsuarioCajeroId(turno.getUsuarioCajeroId());
@@ -79,6 +110,7 @@ public class TurnoServiceImpl implements TurnoService {
         response.setVentas(ventas);
         return response;
     }
+
     @Override
     public List<TurnoResponse> obtenerTodosLosTurnos() {
         List<Turno> turnos = turnoRepository.findAll();

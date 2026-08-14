@@ -49,7 +49,10 @@ public class Turno {
         private String productoId;
         private String nombreProducto;
         private Double totalLitrosEntregados;
-    }
 
+        // --- NUEVOS CAMPOS AÑADIDOS ---
+        private Double stockInicial;
+        private Double stockFinal;
+    }
 
 }

@@ -2,7 +2,8 @@ package com.cvm.model;
 
 public enum TipoVenta {
     MINERO_APOYO, // Venta regular
-    CREDITO,      // Cuenta por cobrar
+    CREDITO,
+    BRIGADA,// Cuenta por cobrar
     SUBSIDIO      // Exento de pago
     //comentario dde cambio
 }

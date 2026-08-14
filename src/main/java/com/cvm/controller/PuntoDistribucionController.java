@@ -31,4 +31,6 @@ public class PuntoDistribucionController {
     public ResponseEntity<PuntoDistribucion> toggleActivo(@PathVariable String id) {
         return ResponseEntity.ok(service.toggleActivo(id));
     }
+
+
 }

@@ -85,8 +85,14 @@ public class VentaServiceImpl implements VentaService {
             }
         }
         if (!insumoEncontrado) {
+            // Se añaden 0.0 para stockInicial y stockFinal cumpliendo el constructor @AllArgsConstructor
             turnoActivo.getResumenInsumos().add(new Turno.ResumenInsumo(
-                    producto.getId(), producto.getNombre(), request.getCantidadSolicitada()));
+                    producto.getId(),
+                    producto.getNombre(),
+                    request.getCantidadSolicitada(),
+                    0.0, // stockInicial (Arrancó en 0 porque no estaba en la apertura)
+                    0.0  // stockFinal (Se calculará al cerrar el turno)
+            ));
         }
         turnoRepository.save(turnoActivo);
 

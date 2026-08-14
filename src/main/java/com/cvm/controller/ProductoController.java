@@ -1,6 +1,9 @@
 package com.cvm.controller;
 
+import com.cvm.dto.IngresoStockRequest;
 import com.cvm.dto.ProductoRequest;
+import com.cvm.dto.ProductoStockResponse;
+import com.cvm.model.CargaInsumo;
 import com.cvm.model.Producto;
 import com.cvm.service.ProductoService;
 import jakarta.validation.Valid;
@@ -42,18 +45,11 @@ public class ProductoController {
     @PostMapping("/{id}/ingresar-stock")
     public ResponseEntity<Producto> ingresarStock(
             @PathVariable String id,
-            @RequestBody Map<String, Object> payload,
+            @RequestBody IngresoStockRequest request, // Usamos el DTO
             java.security.Principal principal) {
 
-        String centroId = (String) payload.get("centroId");
-        String nombreCentro = (String) payload.get("nombreCentro");
-        Double cantidad = Double.valueOf(payload.get("cantidad").toString());
-        String numeroFactura = payload.get("numeroFactura").toString();
-
-        // Capturamos quién recibe el camión (el usuario logueado)
         String usuarioReceptor = (principal != null) ? principal.getName() : "Usuario Desconocido";
-
-        return ResponseEntity.ok(productoService.agregarStock(id, centroId, nombreCentro, cantidad, numeroFactura, usuarioReceptor));
+        return ResponseEntity.ok(productoService.agregarStock(id, request, usuarioReceptor));
     }
     // NUEVO: Transferir stock entre centros
     @PostMapping("/{id}/transferir-stock")
@@ -65,5 +61,17 @@ public class ProductoController {
         String nombreDestino = (String) payload.get("nombreDestino");
         Double cantidad = Double.valueOf(payload.get("cantidad").toString());
         return ResponseEntity.ok(productoService.transferirStock(id, origenId, destinoId, nombreDestino, cantidad));
+    }
+
+    // En ProductoController.java
+    @GetMapping("/punto/{puntoId}/stock")
+    public ResponseEntity<List<ProductoStockResponse>> getStockPorPunto(@PathVariable String puntoId) {
+        List<ProductoStockResponse> result = productoService.getStockPorPunto(puntoId);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{id}/cargas")
+    public ResponseEntity<List<CargaInsumo>> getHistorialCargas(@PathVariable String id) {
+        return ResponseEntity.ok(productoService.getHistorialCargas(id));
     }
 }
