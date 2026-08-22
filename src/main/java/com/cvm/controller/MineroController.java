@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -24,11 +27,6 @@ public class MineroController {
         return new ResponseEntity<>(mineroService.createMinero(request), HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<List<MineroDTO>> getAllMineros() {
-        // AHORA DEVUELVE LOS PERFILES CALCULADOS CON LOS ARRIMES REALES
-        return ResponseEntity.ok(mineroService.obtenerTodosLosPerfiles());
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Minero> updateMinero(@PathVariable String id,
@@ -38,6 +36,18 @@ public class MineroController {
     @GetMapping("/{id}")
     public ResponseEntity<MineroDTO> getMineroById(@PathVariable String id){
         return ResponseEntity.ok(mineroService.obtenerPerfilMinero(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<MineroDTO>> getAllMineros(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "") String search) {
+
+        // Creamos el objeto Pageable (página actual y cuántos elementos por página)
+        Pageable pageable = PageRequest.of(page, size);
+
+        return ResponseEntity.ok(mineroService.obtenerTodosLosPerfiles(pageable, search));
     }
 
 

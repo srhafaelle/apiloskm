@@ -7,6 +7,8 @@ import com.cvm.repository.ArrimeRepository;
 import com.cvm.repository.MineroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -130,5 +132,25 @@ public class MineroServiceImpl implements MineroService {
                 .map(minero -> obtenerPerfilMinero(minero.getId()))
                 .toList();
     }
+    // ==========================================
+    // NUEVO MÉTODO CON PAGINACIÓN Y BÚSQUEDA
+    // ==========================================
+    @Override
+    public Page<MineroDTO> obtenerTodosLosPerfiles(Pageable pageable, String search) {
+        Page<Minero> minerosPage;
 
+        // Si hay una búsqueda, usamos el repositorio para filtrar en BD
+        if (search != null && !search.trim().isEmpty()) {
+            minerosPage = mineroRepository.findByCedulaContaining(
+                    search, search, search, pageable);
+        } else {
+            // Si no hay búsqueda, traemos la página normal
+            minerosPage = mineroRepository.findAll(pageable);
+        }
+
+        // El objeto Page de Spring permite hacer un .map() directamente.
+        // Al traer solo 15 mineros por página, el problema "N+1" se reduce a solo 15 consultas,
+        // lo cual Mongo resuelve en milisegundos sin colapsar el servidor.
+        return minerosPage.map(minero -> obtenerPerfilMinero(minero.getId()));
+    }
 }

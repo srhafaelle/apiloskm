@@ -1,11 +1,12 @@
 package com.cvm.service;
 
-import com.cvm.dto.ArrimeTicketRequest;
 import com.cvm.dto.MineroDTO;
 import com.cvm.dto.MineroRequest;
 import com.cvm.model.Minero;
 import java.util.List;
-import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface MineroService {
 
@@ -19,6 +20,8 @@ public interface MineroService {
     Minero updateMinero(String id, MineroRequest request);
 
     List<MineroDTO> obtenerTodosLosPerfiles();
+
+    Page<MineroDTO> obtenerTodosLosPerfiles(Pageable pageable, String search);
 
 
 }
