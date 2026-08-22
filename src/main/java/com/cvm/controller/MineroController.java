@@ -27,6 +27,11 @@ public class MineroController {
         return new ResponseEntity<>(mineroService.createMinero(request), HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<List<MineroDTO>> getAllMineros() {
+        // AHORA DEVUELVE LOS PERFILES CALCULADOS CON LOS ARRIMES REALES
+        return ResponseEntity.ok(mineroService.obtenerTodosLosPerfiles());
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Minero> updateMinero(@PathVariable String id,
@@ -38,7 +43,7 @@ public class MineroController {
         return ResponseEntity.ok(mineroService.obtenerPerfilMinero(id));
     }
 
-    @GetMapping
+    @GetMapping("/paginados")
     public ResponseEntity<Page<MineroDTO>> getAllMineros(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size,
@@ -49,6 +54,7 @@ public class MineroController {
 
         return ResponseEntity.ok(mineroService.obtenerTodosLosPerfiles(pageable, search));
     }
+
 
 
 
