@@ -5,5 +5,6 @@ public enum TipoEquipo {
     BOMBA,
     MOLINO,
     TANQUILLA,
-    ALFOMBRA
+    ALFOMBRA,
+    JUMBO,
 }

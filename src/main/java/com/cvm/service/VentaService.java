@@ -3,6 +3,7 @@ package com.cvm.service;
 import com.cvm.dto.VentaRequest;
 import com.cvm.model.Venta;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,7 @@ public interface VentaService{
     Venta pagarCredito(String ventaId, String emailCajero);
     List<Venta> obtenerVentasPendientesDeDespacho();
     Venta procesarDespachoFisico(String ventaId, Double cantidadDespachada);
+    List<Venta> findByMonthAndYear(int month, int year);
 
 
 }

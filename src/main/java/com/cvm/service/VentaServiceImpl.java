@@ -146,6 +146,11 @@ public class VentaServiceImpl implements VentaService {
     }
 
     @Override
+    public List<Venta> findByMonthAndYear(int month, int year) {
+        return List.of();
+    }
+
+    @Override
     public Venta findById(String id) {
         return ventaRepository.findById(id).orElseThrow(()->new RuntimeException("Venta no encontrada"));
     }

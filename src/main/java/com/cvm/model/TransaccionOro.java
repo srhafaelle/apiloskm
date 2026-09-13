@@ -1,4 +1,5 @@
 package com.cvm.model;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,11 +22,13 @@ public class TransaccionOro {
     private String tipo; // "ENTRADA" o "SALIDA"
     private Double gramos;
 
-    private String motivo; // Ej: "Recaudación de Arrime", "Compra de Repuestos"
-    private String referencia; // Factura, N° de Ticket, Recibo.
-    private String origenDestino; // De dónde viene (Ej: "Sector Los KM") o a quién se le paga (Ej: "Ferretería CA")
+    private String tipoDeCaja; // NUEVO: "Combustible - Gasoil", "Combustible - Gasolina", "Pequeña Minería", "Utilidades", "Gastos"
 
-    private String usuarioResponsable; // Email o ID de quien registró el movimiento
+    private String motivo;
+    private String referencia;
+    private String origenDestino;
+
+    private String usuarioResponsable;
 
     @Builder.Default
     private LocalDateTime fechaTransaccion = LocalDateTime.now();

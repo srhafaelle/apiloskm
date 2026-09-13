@@ -90,4 +90,11 @@ public class VentaController {
         Venta ventaActualizada = ventaService.procesarDespachoFisico(id, request.getCantidadDespachada());
         return ResponseEntity.ok(ventaActualizada);
     }
+
+    @GetMapping("/por-mes")
+    public ResponseEntity<List<Venta>> obtenerVentasPorMes(
+            @RequestParam int month,
+            @RequestParam int year) {
+        return ResponseEntity.ok(ventaService.findByMonthAndYear(month, year));
+    }
 }
