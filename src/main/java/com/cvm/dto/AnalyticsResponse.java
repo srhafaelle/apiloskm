@@ -31,6 +31,10 @@ public class AnalyticsResponse {
     // Historial para Tablas e Impresión de Reportes
     private List<OperacionHistorialDTO> historialActividades;
 
+    //DESGLOSE ESPECÍFICO PARA COMBUSTIBLES ---
+    private Map<String, Double> ventasCombustibleDiarias; // "YYYY-MM-DD" -> Litros Despachados
+    private Map<String, Double> recaudacionCombustibleDiaria; // "YYYY-MM-DD" -> Monto Oro Pagado
+
     @Data
     @Builder
     public static class InsumoLitrosDetalle {

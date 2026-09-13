@@ -124,14 +124,23 @@ public class ArrimeServiceImpl implements ArrimeService {
     }
 
     public List<Arrime> obtenerReporteArrimes(String fechaInicioStr, String fechaFinStr) {
-        if (fechaInicioStr == null || fechaFinStr == null) {
+        if (fechaInicioStr == null || fechaFinStr == null || fechaInicioStr.isEmpty() || fechaFinStr.isEmpty()) {
             return arrimeRepository.findAll(); // Si no hay fechas, devuelve todo
         }
 
-        // Parseamos las fechas ISO que manda Flutter
-        LocalDateTime inicio = LocalDateTime.parse(fechaInicioStr, DateTimeFormatter.ISO_DATE_TIME);
-        LocalDateTime fin = LocalDateTime.parse(fechaFinStr, DateTimeFormatter.ISO_DATE_TIME);
+        try {
+            // Limpiamos la 'Z' al final si Flutter la envía, para evitar errores de parseo
+            String inicioLimpio = fechaInicioStr.replace("Z", "");
+            String finLimpio = fechaFinStr.replace("Z", "");
 
-        return arrimeRepository.findByFechaCobroLocalBetweenOrderByFechaCobroLocalDesc(inicio, fin);
+            LocalDateTime inicio = LocalDateTime.parse(inicioLimpio);
+            LocalDateTime fin = LocalDateTime.parse(finLimpio);
+
+            return arrimeRepository.findByFechaCobroLocalBetweenOrderByFechaCobroLocalDesc(inicio, fin);
+        } catch (Exception e) {
+            log.error("Error parseando fechas en reporte de arrimes: {}", e.getMessage());
+            // Fallback: si falla el parseo, devolvemos todo para no romper la app
+            return arrimeRepository.findAll();
+        }
     }
 }

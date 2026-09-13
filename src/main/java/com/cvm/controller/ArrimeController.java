@@ -52,7 +52,9 @@ public class ArrimeController {
             @RequestParam(required = false) String fechaInicio,
             @RequestParam(required = false) String fechaFin) {
 
-        return ResponseEntity.ok(arrimeServiceImpl.obtenerReporteArrimes(fechaInicio, fechaFin));
+        // Llama al servicio que ya tienes creado
+        List<Arrime> arrimes = arrimeServiceImpl.obtenerReporteArrimes(fechaInicio, fechaFin);
+        return ResponseEntity.ok(arrimes);
     }
 
     @GetMapping("/ticket/{ticket}")
